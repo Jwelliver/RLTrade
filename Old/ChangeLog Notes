@@ -1,0 +1,58 @@
+120119:
+
+This folder will contain the newer approach to the RL testing stemmed from the 101919 RL folder.
+
+---
+Did:
+-
+
+
+--
+
+todo:
+-Test TradePosition.getNetPips, getPositionValue, and getCommission getPositionValue   
+    -I have no idea why I'm multiplying and dividing by 10000 in these
+
+-TradePosition should becomme a super class and FXTradeposition will expect FXAssets and utilitize pipMultipliers..
+
+-env.reinitialize() - need to be sure that the report appended to env.reportHistory is keeping a copy of the report, and not being erased when the report is reset.
+
+-env -> Currently logging data using the old method.
+    -Ideally, would like to find a cleaner way using DFs only.
+
+-test TradingAccount.getAccountValue
+
+-need to determine when to call TradingAccount.updateAccountLog() and how to integrate that into the final reportlog
+
+-TradingAccount -> figure out if there is a good way to maintatin self.activeAsset and self.positionSize in RLTradeController and then supply it when needed.
+    -checkMargin() requires both so you'd have to figure out when to call that
+
+-RLTradeController.getStateObservation() -> find better way to provide the stateFeature keys that are to be used from the assetData.
+    ... currently just hardcoded them but maybe they should be passed to the RlTradeController? 
+    -maybe there is a state obj design? idk i'm passing out.
+    -Oh but it might be good to have every piece of sim data output to a log, and the agent can choose the state features from that log?
+        -would allow for dynamic feature exploration in the future
+
+
+/*(Done)
+Currently moving from 101919 to 120119
+Just trying to get things running and then I will re-evaluate some of the structure.
+
+I was following through line by line on 101919's main_1, and just addressing things as they came up.
+Currently, I am using a breakpoint right on the "for barnum in range" loop line(~line 98) in main, and just running the debugger to knowck out all the issues.
+    -The bug I'm stopping on is related to some inconsistency with the addReport dict.
+
+then, I have a list of todos above I left for later
+*/
+===========
+12/3/19
+
+** YOU ARE HERE **
+
+need to verify report output. This involves resolving todos from 12/1/19.
+Once that is done, and a few extra tests are run to ensure everyting works(e.g. verify stop conditions), you can start rethinking the architecture for v3 because this one doesn't feel jivey enough.
+    -responsibilities are not clear
+
+currently, reporting is similar to 10/19/19 approach. there is a better way.. need to determine responsibilities of reportKeeping classes, how to handle meta data, and how to
+    ...combine data from various classes to the report.
+    -e.g. maybe all asset data is exported in it's own csv file, and RLTradeReportPlotter handles the rejoining for plotting.

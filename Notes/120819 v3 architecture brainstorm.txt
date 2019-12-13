@@ -1,0 +1,73 @@
+120819
+v3 architecture
+---
+
+v3.b1
+
+Experiment:
+    -Responsible for containing the high level setup and training process flow. (replacing the current main.py loop)
+    -Takes Market, Trader
+
+Asset:
+    -Responsible for containing time series price data
+
+Market:
+    -Responsible for managing a simulated flow of time across multiple Assets
+    -Has list of Assets
+
+Account:
+    -Responsible for maintaining and modifying an account balance.
+    -Can return information directly related to the account.
+
+Position:
+    -Responsible for representing a single trade on an Asset.
+    -Has Asset reference ?
+    -Can return 
+
+Trader:
+    -Responsible for creating, managing, and tracking Positions on one or more Assets in a Market
+    -Has Account
+    -Has Market reference
+
+Brain:
+    -
+
+
+===
+Usecase thought flow:
+
+User has an idea for a new NN architecture which they think would work well if given some specific state features and a reward function.
+They want to set up an experiment to test the idea on various OHLC datasets.
+
+First, they set up a new .py file.
+They need to create a new Asset and package their test OHLC dataset within it.
+The Asset will be assigned to a Market object, which can hold multiple Assets if the experiment calls for it.
+They then need to setup the AgentBrain. This will contain the 
+
+
+===
+Questions:
+
+======
+normal gym execution:
+
+User sets up experiment in main file, which contains an agent and an environment.
+
+They run the epoch loop, which each involes a pass through OHLC data.
+for each bar, the state is retrieved from the environment, and given to the agent, which decides on and returns an action.
+The action is fed back to the environment to update it, and the resulting environment state is returned.
+
+In this scenario, the environment contains the neccesary components for handling market, account, and positions, as well as the arbitrary action, reward and state observation functions.
+
+========
+
+v3.b2
+
+After typing out the above normal execution, I think I have an idea closer to that approach
+
+-Set up a TradingEnvironment super class that expects a TradeController and Market class and handles all the standard TradingEnv behavior 
+    ... and contains default action,state,reward methods, which are intended to be overwritten
+    ... if needed in a subclass.
+
+
+--
