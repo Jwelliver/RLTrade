@@ -1,6 +1,6 @@
 """
 120819
-TradeEnv
+TradingEnvironment
 
 Framework environment for use with a TraderAccount and Market.
 This can be subclassed to set up individual experiments.
@@ -20,9 +20,9 @@ import names
 
 class TradingEnv(gym.Env):
 
-    def __init__(self, traderController):
-        self.trader = rlTradeController
-        self.market = rlTradeController.market
+    def __init__(self, tradingAccount):
+        self.trader = tradingAccount
+        self.market = self.trader.market
 
         self.action_space = self.getActionSpace()
         self.observation_space = self.getObservationSpace()
@@ -156,7 +156,7 @@ class TradingEnv(gym.Env):
         infoDict = {'simNum': simNum, 'barNum': barNum, 'nTrades':nTrades, 'tradeOpen':isTradeOpen, 'accountValue': accVal, 'allPL':accChangeSinceSimStart, 'stopConditions': stopConditions}
         return infoDict
     
-        ####################### #TODO: this should probably
+        ####################### #TODO: this might belong better in RLExperiment
         # DATA EXPORT METHODS
         #######################
 
@@ -229,7 +229,7 @@ class TradingEnv(gym.Env):
         rewardDict = {
             0: normalReward,
             1: normalReward,
-            2: -10,
+            2: -10, 
             3: -10,
         }
         return rewardDict

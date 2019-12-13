@@ -1,53 +1,68 @@
 120819
 
-Todo:
+(todo extension notes: https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-todo-plus#demo)
 
--complete v3 architecture design..
-The TradeEnv class seems about ready to be subclassed.
 
-You need to determine any tweaks that need to be made to
-TradingAccount and Market.
 
-TradingAccount seems like it already has everything needed to
-be passed to TradeEnv as it's "trader".
+General:
 
--update for below: Experiment class started - you should make the super class general, and then subclass for a TradingExperiment,, which expects and handles a by-bar training loop.
--You may still want to create an Experiment class which will contain the current main.py loop in a "run()" function, or something.
-    -takes an agent and the env, and anything else required (e.g. nEpisodes)
-    and handles the actual training process.
-        -this class would provide the structure for training, and 
-        handle all the extra stuff like terminal updates, timing, model saving, etc.
-        -This could also be the uppermost class to handle reporting, taking it
-        away from the environment responsibilities. 
-            -maybe env should still keep a relevant log, but experiment handles exporting and naming, etc.
 
-        -should have either an overridable method or user can provide a callable method
-        ... which is called at various parts of training to add custom functionality.
-        ... e.g. on the "if done" part, or after each epoch.. that would allow the generic experiment class to still
-        ... allow for things like calling replay on agents that need it, etc.
+    complete v3 architecture design: 
+        ✔ The TradeEnv class seems about ready to be subclassed. @done(19-12-12 21:23)
+        - You need to determine any tweaks that need to be made to TradingAccount and Market.
+            TradingAccount seems like it already has everything needed to be passed to TradeEnv as it's "trader".
+    
+        ✔ update for below: Experiment class started - you should make the super class general, and then subclass for a TradingExperiment,, which expects and handles a by-bar training loop. @done(19-12-12 19:44)
+            -You may still want to create an Experiment class which will contain the current main.py loop in a "run()" function, or something.
+            -takes an agent and the env, and anything else required (e.g. nEpisodes)
+            and handles the actual training process.
+                -this class would provide the structure for training, and 
+                handle all the extra stuff like terminal updates, timing, model saving, etc.
+                -This could also be the uppermost class to handle reporting, taking it
+                away from the environment responsibilities. 
+                    -maybe env should still keep a relevant log, but experiment handles exporting and naming, etc.
 
--Speaking of reporting, maybe consider a experimentreporting class, or just a single dataframe which is passed to the various
-...classes who each can handle their own reporting at a given bar?.. 
+                -should have either an overridable method or user can provide a callable method
+                ... which is called at various parts of training to add custom functionality.
+                ... e.g. on the "if done" part, or after each epoch.. that would allow the generic experiment class to still
+                ... allow for things like calling replay on agents that need it, etc.
 
--batch size should be contained in the DQN agent class
-
--should probably extract the experiment-agnostic features from TradeEnv, and create a customer Environment super class - DeepwellEnvironemnt?
-
-- change "episode" naming convention to epoch
 ==
-sidenote:
+sidenote
     12/8/19 9:55PM
     The deepwell framework is concieved.
 ==
 
+        ✔ finish RLExperiment abstract class .. should be compatible with @done(19-12-12 19:46)
+            ...any generic RL training task (or most, don't get stuck)
+            -(done)add user callback functions
+
+        ✔ then, finish RLTradingExperiment class.. should inherit RLExperiment @done(19-12-12 19:47)
+            ...and the run function should accomplish everything from v2's main.py loop.
+
+
 
 ** YOU ARE HERE **
 
--finish RLExperiment abstract class .. should be compatible with
-    ...any generic RL training task (or most, don't get stuck)
-    -add user callback functions
+current:
+    - continue reconstructing main.py in new v3 architecture and test until it works
+        - test importing the framework
+        - test the userMethodDict approach and the subclass approach 
+            - for the subclass approach, you can create a reusable subclass for use with the DQNAgent.
+        
+later:
 
--then, finish RLTradingExperiment class.. should inherit RLExperiment
-    ...and the run function should accomplish everything from v2's main.py loop.
+    - consider an experimentreporting class, or just a single dataframe which is passed to the various classes who each can handle their own reporting at a given bar?.. 
 
--then revisit the todos at the top of this page.
+    - batch size should be contained in the DQN agent class
+
+    - should probably extract the experiment-agnostic features from TradeEnv, and create a custom Environment super class - DeepwellEnvironemnt?
+
+    - change "episode" naming convention to epoch
+
+    - rethinking "custom user methods" dict approach in RLExperiment ... probably better to just subclass and add features via overriding... but test these anyway.. might be worth keeping the functionality
+    ... But if you keep it, you may need to add similar functionality to Environment for consistent behavior
+
+
+
+non-mvp feature brainstorm:

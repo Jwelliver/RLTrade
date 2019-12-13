@@ -3,32 +3,40 @@
 RLExperiment class
 
 There's a lot of odd/discomforting global usage here, but it's the only way I saw fit to make it modular in my tired state.
+
+To add functionality at certain points in the training process, a user can either subclass and overwrite the 'onNewEpisode_user', 'onStep_user', and 'onDone_user' methods,
+    or, they can pass or set unbound methods in the userMethodsDict using the keys 'onNewEpisode', 'onStep', and 'onDone' which will be called by default
+    and will be passed a reference to the instance of this RLExperiment class.
+
+
 """
 
 import os
 
-
 class RLExperiment():
 
-    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None):
+    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None, userMethodsDict = None):
         self.agent = agent
         self.env = environment
         self.nEpisodes = nEpisodes
-        self.render = render
+        self.render = renderMode
+        self.userMethods = userMethodsDict
         self.totalTimeElapsed = 0
         self.state_size = self.env.getObservationSpaceSize()
         self.action_size = self.env.getActionSpaceSize()
         self.currentEpisode = 0
         self.done = False
         self.state = None
+        self.next_state = None
         self.action = None
         self.reward = None
         self.info = None
         self.episodeStartTime = 0
         os.environ["CUDA_VISIBLE_DEVICES"]=cudaDevices #  '-1' = CPU,  '0,1' makes both GPUs visible.
 
-    def run(self):
+    def run(self, nEpisodes = -1):
         """ starts training over nEpisodes """
+        if nEpisodes == -1: nEpisodes = self.nEpisodes 
         self.onExperimentStart()
         for e in range(nEpisodes):
             self.onNewEpisode(resetEnv=True)
@@ -37,13 +45,12 @@ class RLExperiment():
                 self.onDone()
                 break
         
-
     def onNewEpisode(self,resetEnv=True):
         """ this runs at the start of a new episode """
         print('===============================\n--------> Starting Episode {}/{}'.format(e+1,nEpisodes))
         self.episodeStartTime = time.time()
         if resetEnv: self.envReset()
-        #userOnNewEpisode_Callback
+        self.onNewEpisode_user()
 
     def onExperimentStart(self):
         """ called when experiment begins, before the first episode """
@@ -67,16 +74,10 @@ class RLExperiment():
         """ handles primary train/update sequence given the state and returns the next state """
         self.envRender()
         self.action = agent.act(self.state)
-        next_state, self.reward, self.done, self.info = env.step(action)
-        next_state = np.reshape(next_state, [1, self.state_size])
-        self.postStep()
-        #agent.remember(state, action, reward, next_state, done)
+        self.next_state, self.reward, self.done, self.info = env.step(action)
+        self.next_state = np.reshape(next_state, [1, self.state_size])
+        self.onStep_user()
         self.state = next_state
-        
-    def postStep(self):
-        """ called after env.step() in mainUpdate(); overwrite, or use callback """
-        #postStep_user callback
-        pass
 
     def onDone(self):
         """ called when an episode has ended """
@@ -86,4 +87,28 @@ class RLExperiment():
         timeRemaining = (totalTime/(self.currentEpisode+1)) * nRemainingEpisodes
         print("Episode {} completed in {} seconds. | {} episodes ({}) remaining".format(self.currentEpisode,timedelta(seconds=finishTime),nRemainingEpisodes,timedelta(seconds=timeRemaining)))
         print(info)
-        #onDone_user callback
+        self.onDone_user()
+
+    #
+    # Custom methods called below
+    #
+
+    def callUserMethod(self,userMethodKey):
+        """ calls the given userMethodKey and passes self """
+        try:
+            self.userMethods[userMethodKey](self)
+        except:
+            pass
+
+    def onNewEpisode_user(self):
+        """ ccalled at the end of the built-in onNewEpisode() method """
+        self.callUserMethod('onNewEpisode')
+
+    def onStep_user(self):
+        """ called after env.step() in mainUpdate() """
+        self.callUserMethod('onStep')
+
+    def onDone_user(self):
+        """ called at the end of the built-in onDone() method """
+        self.callUserMethod('onDone')
+

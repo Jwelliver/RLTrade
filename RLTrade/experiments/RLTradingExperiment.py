@@ -8,8 +8,8 @@ import os
 from RLExperiment import RLExperiment
 
 class RLTradingExperiment(RLExperiment):
-    def __init__(self):
-        super.__init__() #todo check
+    def __init__(self,**kwds):
+        super().__init__(**kwds) #todo check
 
     def run(self):
         """ starts training over nEpisodes """
