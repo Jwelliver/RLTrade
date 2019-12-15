@@ -1,7 +1,5 @@
 120819
 
-(todo extension notes: https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-todo-plus#demo)
-
 
 
 General:
@@ -9,7 +7,7 @@ General:
 
     complete v3 architecture design: 
         ✔ The TradeEnv class seems about ready to be subclassed. @done(19-12-12 21:23)
-        - You need to determine any tweaks that need to be made to TradingAccount and Market.
+        ✔ You need to determine any tweaks that need to be made to TradingAccount and Market. @done(19-12-14 22:34)
             TradingAccount seems like it already has everything needed to be passed to TradeEnv as it's "trader".
     
         ✔ update for below: Experiment class started - you should make the super class general, and then subclass for a TradingExperiment,, which expects and handles a by-bar training loop. @done(19-12-12 19:44)
@@ -42,15 +40,22 @@ sidenote
 
 
 
-** YOU ARE HERE **
+
 
 current:
-    - continue reconstructing main.py in new v3 architecture and test until it works
-        - test importing the framework
-        - test the userMethodDict approach and the subclass approach 
+
+    ** YOU ARE HERE **
+    - write a cool reward function and play around/test it a bit.. if you're going to design something, handle the reporting and the visualization.
+
+    ✔ continue reconstructing main.py in new v3 architecture and test until it works @done(19-12-14 21:29)
+        ✔ test the userMethodDict approach and the subclass approach @done(19-12-14 22:35)
             - for the subclass approach, you can create a reusable subclass for use with the DQNAgent.
+
         
 later:
+
+    - write out quick use case/mini docs on how to go about designing and setting up an experiment
+        ...this should help highlight any flow issues and refresh your high level perspective
 
     - consider an experimentreporting class, or just a single dataframe which is passed to the various classes who each can handle their own reporting at a given bar?.. 
 
@@ -63,6 +68,36 @@ later:
     - rethinking "custom user methods" dict approach in RLExperiment ... probably better to just subclass and add features via overriding... but test these anyway.. might be worth keeping the functionality
     ... But if you keep it, you may need to add similar functionality to Environment for consistent behavior
 
+    - set RLTrade package up as a proper module so we can import from a parent dir
+        ... need to resolve "attempted relative import with no known parent package" error
+    
+
+
+later non-mvp:
+    TradingAccount:
+        - redesign margin checks
 
 
 non-mvp feature brainstorm:
+
+    - might want to consider redesigning as lightweight as possible - You're currently trying to making things as robust and general as possible (as usual), but that is adding overhead.
+        ... e.g., extra loops and stuff where there doesn't need to be... there is a trade off between user friendliness and efficiency; for example, in the Market class; everytime you call getAssetDataFeatures(),
+        ... it will validate the assetIds, whether they're names, id's or a combination. This is cool and nice.. but unneccesary.. especially during development. It's better to understand and comply to a specific
+        ... expected parameter and streamline performance.
+
+    RLExperiment:
+        - consider changing "done" and "onDone" to something like "onEpisodeFinish"
+
+    TradingAccount:
+        - allow getRealizedProfit to have a custom window - I was doing this now, but am skipping to not get bogged down.. also don't have a use case in mind where this is needed during mvp
+            ... this should use the built in account log
+            `def getRealizedPL(self, startBarNum=0, endBarNum=None)
+            """ return difference in current accountValue(excluding unrealizedPL) from startBarNum to endBarNum; if endBarNum==None, current bar is used """
+                if endBarNum==None: endBarNum = self.market.currentBarNum
+                return ...`
+
+
+Things User should know:
+    RLExperiment:
+        - whenever self.done == True, the currentEpisode will end.
+        - if the rewardDict does not contain a reward for the current eventFlag, a reward of 0 will be returned;
