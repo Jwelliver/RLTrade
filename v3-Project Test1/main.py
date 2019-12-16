@@ -17,7 +17,7 @@ from testTradingEnv import TestTradeEnv #import my custom environment, tailored 
  # Data Prep
 ###############
 
-assetData = assetDataLib.baseLineOHLCData1()
+assetData = assetDataLib.baseLineOHLCData2()
 
 ####################
  # Environment Setup
@@ -28,19 +28,19 @@ assetData = assetDataLib.baseLineOHLCData1()
 testAsset = Assets.FXAsset(assetData)
 
 market = Market.Market([testAsset])
-tradingAccount = TradingAccount.TradingAccount(market,initialBalance=10000)
+tradingAccount = TradingAccount.TradingAccount(market,initialBalance=100)
 
-reportLogDir = os.path.dirname(os.path.abspath(__file__)) + '/reportLogsTst'
+reportLogDir = os.path.dirname(os.path.abspath(__file__)) + '/reportLogs'
 env = TestTradeEnv(tradingAccount=tradingAccount,reportLogDir=reportLogDir)
 state_size = env.getObservationSpaceSize()
 action_size = env.getActionSpaceSize()
 
 agent = DQNAgent(state_size, action_size)
 
-batch_size = 5 #for replay
-nBarsPerReplay = 5 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
+batch_size = 32 #for replay
+nBarsPerReplay = 1 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
 
-nEpisodes = 1
+nEpisodes = 10
 
 ####################
  # Experiment Setup

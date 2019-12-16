@@ -48,3 +48,12 @@ class TradePosition():
     def getCommissionValue(self):
         """ returns commission value in dollars or 0 if disabled """
         return -(self.positionSize/10000) if self.enableCommission else 0
+
+    def getAge(self, asBarCount=True):
+        """ returns 'age' of position in terms of time from open to close or as number of bars from open to close if asBarCount==True; If position is currently active, endBar will be currentBar """
+        if asBarCount:
+            endBar = self.exitBarNum if self.exitBarNum != None else self.asset.currentBarNum
+            return endBar - self.entryBarNum
+        else:
+            print("Warning: TradePosition.getAge() > DT support not yet implemented, returning None.")
+            return None

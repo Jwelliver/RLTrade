@@ -54,8 +54,18 @@ current:
         
 later:
 
+    - Tests show that the time to complete each episode generally increases.. need to find out why and determine severity.
+        ... complexity issue?
+        ... try tests while monitoring cpu temp. 
+
+    - work through flow to determine when accountLog is updated in TradingAccount.. 
+        ... trying to determine at what points it is safe to reference the account log for most current info.. e.g. if I want to see what my account value was at the previous bar, i want to make sure I'm
+        ... actually accessing the correct index in the accountLog.
+
     - write out quick use case/mini docs on how to go about designing and setting up an experiment
         ...this should help highlight any flow issues and refresh your high level perspective
+
+    - refactor DQNAgent
 
     - consider an experimentreporting class, or just a single dataframe which is passed to the various classes who each can handle their own reporting at a given bar?.. 
 
@@ -65,17 +75,41 @@ later:
 
     - change "episode" naming convention to epoch
 
+    - rename TradePosition.getPositionValue() to just "getValue()"
+
     - rethinking "custom user methods" dict approach in RLExperiment ... probably better to just subclass and add features via overriding... but test these anyway.. might be worth keeping the functionality
     ... But if you keep it, you may need to add similar functionality to Environment for consistent behavior
 
     - set RLTrade package up as a proper module so we can import from a parent dir
         ... need to resolve "attempted relative import with no known parent package" error
+
+    - Create an extension for Market class (or asset), which provides access to a technical analysis library, allowing user to get or generate TA data inherently, without needing to provide it as a feature.
+        - may be able to include a list of desired TA features in a list as callbacks when initiailizing Market, and those TA data will be included in the dataframes of all assets
+            - You'd have to handle cleaning (removing NAN from begininng, or just handling NAN for indicators which generate sporadic NANs through the data)
     
 
 
 later non-mvp:
+    General:
+        - Utilize tradingview library for visualization
+        - integrate into quantconnect
+        - design built in support for dynamic action spaces. 
+        ... e.g. based on a flag or callback condition, a different set of actions can be available to the agent.
+        ... This wouldn't work with the existing DQNAgent since the networks size is dependent on the action space.. but you could maybe set the size to that of the largest action set, and have a unique acionId 
+        ... for each action across all sets..(actually, you could just use a single large action set) then just limit the agent to the desired actions as needed.. e.g. allPossibleActionsSet = [0,1,2,3,4]; but in
+        ... a given state, agent might only be able to choose from [2,3,4] or [1,4], etc.
+
+        - probably should build an Agent interface.. maybe geared toward DQN, so that modifying the model can be done without subclassing... or just has the basic features, and you provide it the model.
+        ... an agent "constructor" would be cool... you can construct an agent class, or subclass, (or instance!) from modular parts with the features you want.
+        ... e.g. does this agent use replay? If so, replay and remember functions are added....   Being able to define General architecture would be super cool.
+        ... we definitely could create functions that spit out a desired NN architecture.. but 
+
+        - need to design testing process flow; ability to easily test a given agent on unseen data.
+
     TradingAccount:
         - redesign margin checks
+
+    
 
 
 non-mvp feature brainstorm:
@@ -94,10 +128,22 @@ non-mvp feature brainstorm:
             `def getRealizedPL(self, startBarNum=0, endBarNum=None)
             """ return difference in current accountValue(excluding unrealizedPL) from startBarNum to endBarNum; if endBarNum==None, current bar is used """
                 if endBarNum==None: endBarNum = self.market.currentBarNum
-                return ...`
+                return ...
+    
+    testDataGen:
+        - eventually, we should be experimenting with using GANs to increase training data volume... this could be super useful if training with images, too.
+        
+        - 
 
 
 Things User should know:
     RLExperiment:
         - whenever self.done == True, the currentEpisode will end.
         - if the rewardDict does not contain a reward for the current eventFlag, a reward of 0 will be returned;
+        - in most cases, event flags should be used to indicate meta-events, or episode-halting events which might need to be accounted for in your reward, even though they may not be contained in the state observation.
+            ... you mostly don't want to set them strictly to determine reward provided from the reward dict (although, you could). A better approach, would be to call a reward function from the getRewardDict() method
+            ... and do all neccesary state/condition calculations in that reward func.
+        - you probably want to override setStopFlag()
+
+
+

@@ -1,0 +1,53 @@
+"""
+121519
+-Just a scratch pad to get down, or think through ideas using the todo extension formatting.
+"""
+
+
+
+State Features:
+
+    - try using distance to breakeven as feature instead of a derivitive of position value
+
+    - experiment with discrete positionValue readings.
+        ... might be better for longer term trades... i.e. only show the agent their posVal as 0.01 if posValPctOfAccVal >=0.01 and < 0.5; show 0.5 if it's > 0.5 and <= 1; etc.
+        ... this will make it converge quicker, and be less susceptible to small price movements
+        - can also try discrete readings in terms of change from a specific period.
+            ... Or, multiple periods.. e.g. discrete change from 5 bars ago, 10, etc.. or from nPercent bars ago, e.g. a position that is 100 bars old and has a 5% look back will return bar 5 when available.
+            ... could also combine these.
+            - may want to try experiementing with allowing the agent to modify the size of the discrete interval as an action; that way, it can optimize itself.
+
+    - Need to come up with a standard way to meaningfully represent price action and current context
+     ... extract the useful features, short of using images as input
+
+    - use a state observation consisting of the actual asset data plus many "signal source" obejcts 
+        ...  the "signal source" objects  can be algorithms or networks which have, through some process, learned to provide a signal based on their evaluation of an asset.
+        ... these can be created dynamically, through a process which gives them arbitrary information about the asset, and they do their best to use that info to generate arbitrary output
+        ... maybe the output is also picked randomly.. or maybe it is a prediction on price direction.
+        ...
+        ... Once you have a ton of these things created and trained, their output is fed to the agent as input along with the actual state feature.. hopefully, some structure
+        ... will exist, and the agent can learn to determine which combination of signals to follow under which circumstances.
+
+Rewards:
+    - maybe consider accounting for "loss recovery" when handling reward onLosingTradeClosed.
+    ... this could compare the loss value when the trade closed against the maxium unrealized loss, and adjust reward accordingly.
+    ... e.g. if agent hold's a position worth -10, but closes at -2, reduce punishment, or use reward to promote good loss management.
+    ... Although, this will need to be done carefully, as to not enable bad risk management habits.
+
+Actions:
+    - Think about ways to allow the agent to modify their perception via actions;
+    ... e.g. a simple example would be using an action to enable or diable a specific state feature; or chose to swap between the entire set of state observations being received (with the current stateSet index remaining a constant feature, so the agent can track which state it's best at utilizing);
+    ... An example related to trading would be to allow the agent to chose different state features, which might enable it to adapt what it's looking for based on the state conditions. (i.e. the chart behavior)
+    ... a simple trading example  might be choosing to observe different parameters of a technical indicator;
+    ... Note: this may take some unique NN architecture; A standard one might do it, assuming you have some constant that indicates the stateSet being used; But swaping between differnt features; and feeding them
+    ... into the same input nodes will probably present a challenge. At the very least, they should be similarly normalized. 
+        - This should be automated at somepoint - allowing the agent a pool of state features to choose from; and letting them determine which ones work best.
+            - This can probably be assisted with a genetic approach.
+
+
+Agent Architecture:
+    - think about how to implement constructive feedback during reward process.. 
+        ... if you can calculate what action the agent should have taken instead, and somehow implement that into the training loop...
+        ... e.g. agent closes a losing trade when it is within 1 standard deviation of breakeven, you might want to use that info to guide it to stay in the trade 
+
+    - consider how to set up a framework for initializing an agent with pre-existing knowledge in the form of hard rules or biases.

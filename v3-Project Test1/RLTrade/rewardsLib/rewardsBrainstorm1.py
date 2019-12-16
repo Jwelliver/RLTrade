@@ -13,7 +13,7 @@ def baseline1(tradingAccount):
     return reward
 
 def baseline2(tradingAccount):
-    """ Not in pos: -0.5; in winning pos: +0.2; in losing pos: -0.2; closed winning pos: +1 + %gain; closed losing pos: -1 - %loss """
+    """ reward description: No open positions: -0.5; open winning pos: +0.2; open losing pos: -0.2; onClosing winning pos: +1 + %gain; onClosing losing pos: -1 - %loss """
     posJustClosed = tradingAccount.getPositionClosedOnLastBar()
     if posJustClosed !=None:
         posValue = posJustClosed.getPositionValue()
@@ -26,4 +26,25 @@ def baseline2(tradingAccount):
         return 0.2 if tradingAccount.getCurrentPositionValue() > 0 else -0.2 # currently in winning or losing/breakeven pos
     else:
         return -0.0 #Not in pos
+    return -99999 # return catchall - may want to change this to 0 after testing
+
+def baseline3(tradingAccount):
+    """ no pos: -0.01; inWinning: (posVal/accVal)/nBarsHeld; inLosing: -0.1 + (-0.01*nBarsHeld); onWinClosed: 1 +(posValue/accVal); onLossClosed: -1 + (posVal/accVal) """
+
+    posJustClosed = tradingAccount.getPositionClosedOnLastBar()
+    if posJustClosed !=None:
+        posValue = posJustClosed.getPositionValue()
+        accBalBeforeTrade = tradingAccount.accountBalance - posValue
+        posValPctOfAcc = posValue / accBalBeforeTrade
+        reward = 1 if posValue > 0 else -1
+        return reward + posValPctOfAcc # reward for closing a position
+
+    if tradingAccount.hasOpenPosition():
+        curPos = tradingAccount.getCurrentPosition()
+        nBarsHeld = curPos.getAge()
+        accBalBeforeTrade = tradingAccount.accountBalance - posValue
+        posValPctOfAcc = posValue / accBalBeforeTrade
+        return posValPctOfAcc/nBarsHeld if curPos.getPositionValue() > 0 else -0.1 + (-0.01*nBarsHeld) # currently in winning or losing/breakeven pos
+    else:
+        return -0.01 #Not in pos
     return -99999 # return catchall - may want to change this to 0 after testing

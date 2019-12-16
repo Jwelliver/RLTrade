@@ -110,6 +110,8 @@ class TradingEnvironment(gym.Env):
         self.report = pd.DataFrame() # reset report
         self.market.reset()
         self.trader.reset()
+        self.eventFlag = 0
+        self.stopFlag = 0
 
     def getReward(self):
         """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """

@@ -32,7 +32,7 @@ def customTradeSimReportPlot_1(csvPath, tradeReportPlotter, figTitle='TradeRepor
 def plotTradeSimReportByAgentName(agentName, simNumsToPlot):
     """ utility function to make it quick and easy to view multiple sim reports at the same time with minimal input """
     trPlotter = RLTradeReportPlotter.RLTradeReportPlotter()
-    reportLogPath ='C:/Users/Josh/OneDrive/Python/Keras Practice/120819 - RL v3/v3-Project Test1/reportLogsTst'
+    reportLogPath ='C:/Users/Josh/OneDrive/Python/Keras Practice/120819 - RL v3/v3-Project Test1/reportLogs'
     for i in simNumsToPlot:
         p = '{}/{}/{}_{}.csv'.format(reportLogPath,agentName,agentName,i)
         figTitle = '{} s{}'.format(agentName,i)
@@ -55,6 +55,6 @@ tPath = './reportLogs/plotting_test/reportFile1.csv'
 #t.plotTradeSimReportFromCsv(n)
 '''
 
-agentName = 'Dorothy_Billiot'
-simsToPlot = list(range(1,2,1))
+agentName = 'Lillie_Gray'
+simsToPlot = list(range(1,11,1))
 plotTradeSimReportByAgentName(agentName,simsToPlot)
