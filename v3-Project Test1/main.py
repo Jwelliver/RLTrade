@@ -17,7 +17,7 @@ from testTradingEnv import TestTradeEnv #import my custom environment, tailored 
  # Data Prep
 ###############
 
-assetData = assetDataLib.baseLineOHLCData2()
+assetData = assetDataLib.baseLineData2(tickDataSize=500)
 
 ####################
  # Environment Setup
@@ -37,19 +37,19 @@ action_size = env.getActionSpaceSize()
 
 agent = DQNAgent(state_size, action_size)
 
-batch_size = 32 #for replay
-nBarsPerReplay = 1 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
+batch_size = 5 #for replay
+nBarsPerReplay = 5 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
 
-nEpisodes = 10
+nEpisodes = 2
 
 ####################
  # Experiment Setup
 ####################
 
-# setup custom experiment methods
+# setup custom experiment me-thods
 
 def onDone(experiment):
-    print(env.getInfo())
+    experiment.consoleMsg(env.getInfo())
 
 def onPostStep(experiment):
     #handle DQN memory

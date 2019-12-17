@@ -54,6 +54,9 @@ current:
         
 later:
 
+    - setup parallel processing using multiprocessing module;
+        - also, TFF has distributed training which can take advantage of multiple GPU
+
     - Tests show that the time to complete each episode generally increases.. need to find out why and determine severity.
         ... complexity issue?
         ... try tests while monitoring cpu temp. 

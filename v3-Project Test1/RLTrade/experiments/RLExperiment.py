@@ -14,6 +14,7 @@ To add functionality at certain points in the training process, a user can eithe
 import os
 import time
 from datetime import timedelta
+from datetime import datetime
 import numpy as np
 
 class RLExperiment():
@@ -36,19 +37,20 @@ class RLExperiment():
         self.reward = None
         self.info = None
         self.episodeStartTime = 0
+        self.consoleLog = '\n\n=========\n\n'
         os.environ["CUDA_VISIBLE_DEVICES"]=cudaDevices #  '-1' = CPU,  '0,1' makes GPUs 0 and 1 visible.
 
     def run(self):
         """ starts training over nEpisodes """
         self.onExperimentStart()
-        for self.currentEpisode in range(self.nEpisodes):
+        for self.currentEpisode in range(1,self.nEpisodes+1):
             self.onNewEpisode()
             self.runEpisode()
         self.onExperimentComplete()
         
     def onNewEpisode(self):
         """ this runs at the start of a new episode """
-        print('===============================\n--------> Starting Episode {}/{}'.format(self.currentEpisode+1,self.nEpisodes))
+        self.consoleMsg('---> Starting Episode {}/{} <---'.format(self.currentEpisode,self.nEpisodes),topBorder=True)
         if self.resetEnvOnNewEpisode: self.envReset()
         self.done = False
         self.episodeStartTime = time.time()
@@ -56,11 +58,11 @@ class RLExperiment():
 
     def onExperimentStart(self):
         """ called when experiment begins, before the first episode """
-        print("Begin")
+        self.consoleMsg("**Experiment Start**",topBorder=True)
     
     def onExperimentComplete(self):
         """ called when all episodes have finished """
-        print(" ======================== \n ----------> ALL episodes completed in {} | -- Saving Model -> {} \n========================".format(timedelta(seconds=self.totalTimeElapsed),self.env.getReportLogDir()))
+        self.consoleMsg("--------> ALL episodes completed in {} | -- Saving Model -> {}".format(timedelta(seconds=self.totalTimeElapsed),self.env.getReportLogDir()),topBorder=True,bottomBorder=True)
         self.agent.save(self.env.getReportLogDir()+"/"+self.env.environmentID + '_ModelWeights.h5')
     
     def envReset(self):
@@ -90,11 +92,27 @@ class RLExperiment():
         """ called when an episode has ended """
         finishTime = time.time() - self.episodeStartTime
         self.totalTimeElapsed += finishTime
-        nRemainingEpisodes = (self.nEpisodes - (self.currentEpisode+1))
-        timeRemaining = (self.totalTimeElapsed/(self.currentEpisode+1)) * nRemainingEpisodes
-        print("Episode {} completed in {} seconds. | {} episodes ({}) remaining".format(self.currentEpisode,timedelta(seconds=finishTime),nRemainingEpisodes,timedelta(seconds=timeRemaining)))
-        self.env.exportReportToCsv()
+        nRemainingEpisodes = (self.nEpisodes - (self.currentEpisode))
+        timeRemaining = (self.totalTimeElapsed/(self.currentEpisode)) * nRemainingEpisodes
+        self.consoleMsg("Episode {} completed in {} seconds. | {} episodes ({}) remaining".format(self.currentEpisode,timedelta(seconds=finishTime),nRemainingEpisodes,timedelta(seconds=timeRemaining)))
         self.onDone_user()
+        self.env.exportReportToCsv()
+        self.saveConsoleLog()
+
+    def consoleMsg(self,message, includeTime=True, topBorder=False, bottomBorder=False):
+        """ message provided will be output to the console, and saved in a log to be exported when the experiment is complete."""
+        timeNow = datetime.now().strftime("%H:%M:%S")
+        msg = '{} | {}'.format(timeNow, message) if includeTime else message
+        if topBorder: msg = '==============================\n' + msg
+        if bottomBorder: msg += '\n=============================='
+        self.consoleLog += '\n'+msg
+        print(msg)
+
+    def saveConsoleLog(self,path=None):
+        """  saves contents of self.consoleLog to path; if path==None, the environment's reportLogDir is used. """
+        if path==None: path = self.env.getReportLogDir() + '/consoleLog.txt'
+        with open(path, 'a') as f: 
+            f.write(self.consoleLog)
 
     #
     # User Callbacks handled below - the "..._user" methods can be overwritten when subclassing

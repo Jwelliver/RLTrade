@@ -55,6 +55,6 @@ tPath = './reportLogs/plotting_test/reportFile1.csv'
 #t.plotTradeSimReportFromCsv(n)
 '''
 
-agentName = 'Lillie_Gray'
-simsToPlot = list(range(1,11,1))
+agentName = 'Lamont_Mays'
+simsToPlot = list(range(1,4,1))
 plotTradeSimReportByAgentName(agentName,simsToPlot)

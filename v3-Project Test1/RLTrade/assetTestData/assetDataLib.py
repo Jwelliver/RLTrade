@@ -10,11 +10,11 @@ import numpy as np
 
 from . import testDataGeneration as testDataGen
 
-def baseLineOHLCData1():
+def baseLineData1(tickDataSize=500):
     """ returns df for testing """
 
     # - primary ohlc data
-    tickData = testDataGen.getFXSineTickData_squash(500,smoothing=20,squashing=100)
+    tickData = testDataGen.getFXSineTickData_squash(tickDataSize,smoothing=20,squashing=100)
     ohlcDataframe = testDataGen.getOhlcDataFromTickData(tickData,periodInSeconds=5,ohlc_colNames=['o','h','l','c'])
 
     # - set up indicator data here
@@ -42,11 +42,11 @@ def baseLineOHLCData1():
 
     return ohlcDataframe
 
-def baseLineOHLCData2():
+def baseLineData2(tickDataSize=500):
     """ returns df for testing """
 
     # - primary ohlc data
-    tickData = testDataGen.getFXSineTickData_squash(500,smoothing=20,squashing=100)
+    tickData = testDataGen.getFXSineTickData_squash(tickDataSize,smoothing=20,squashing=100)
     ohlcDataframe = testDataGen.getOhlcDataFromTickData(tickData,periodInSeconds=5,ohlc_colNames=['o','h','l','c'])
 
     # - set up indicator data here
