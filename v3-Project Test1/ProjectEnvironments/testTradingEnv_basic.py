@@ -18,17 +18,18 @@ class TestTradeEnv(TradingEnvironment.TradingEnvironment):
         currentBarNum = self.market.currentBarNum
         #observation.extend(self.envFeatureData[currentBarNum])
         #observation.extend(self.market.getAssetDataFeatures([self.trader.activeAssetId],['sma6_c_diff','sma6_c_diff_prev','sma12_c_diff','sma12_c_diff_prev']))
-        observation.extend(self.market.getAssetDataFeatures([self.trader.activeAssetId],['sma6_sma12_diff_delta_from_prev']))
+        observation.extend(self.market.getAssetDataFeatures([self.trader.activeAssetId],['sma6_sma12_diff','sma6_c_diff']))
         observation.append(self.trader.getPositionStatus())
         observation.append(self.trader.getCurrentPositionValue() / self.trader.accountBalance) #current Position as pct of accountBal
+        #observation.append(self.trader.getAccountValue())
         #print("TradeEnv1.getStateObservation() > ", observation)
         #baseLine1 = observationsLib.baseline1(self.tradingSim)
         #observation.append(baseLine1)
+        #print("getStateObservation() > {}".format(observation))
         return observation
 
     def getRewardDict(self):
         """ returns the current reward for each eventFlag - You can set eventFlags in self.getEventFlag() """
-        
         normalReward = rewards.baseline3(self.trader)
         rewardDict = {
             0: normalReward,

@@ -51,3 +51,7 @@ Agent Architecture:
         ... e.g. agent closes a losing trade when it is within 1 standard deviation of breakeven, you might want to use that info to guide it to stay in the trade 
 
     - consider how to set up a framework for initializing an agent with pre-existing knowledge in the form of hard rules or biases.
+
+    - specialized agent design for trading #122219
+        - should have a dedicated process for interpreting price
+            - this could be through a set of "sensors" which could be 

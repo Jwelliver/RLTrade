@@ -8,20 +8,20 @@ import pandas as pd
 from .TradePosition import TradePosition
 
 class TradingAccount():
-    def __init__(self,marketObj,initialBalance,marginRequirement=0.05,enableCommission=True, positionSize=1000):
+    def __init__(self,marketObj,initialBalance,marginRequirement=0.05,enableCommission=True, positionSize=1000, name='TradingAcc1'):
+        self.name=name
         self.initialBalance = initialBalance
         self.accountBalance = self.initialBalance
         self.marginRequirement = marginRequirement
         self.enableCommission = enableCommission
         self.activeAssetId = 0 #this is the asset that actions will be applied to 
-        self.positionSize = positionSize
+        self.initPositionSize = positionSize
+        self.positionSize = self.initPositionSize
         self.positions = [] # list of TradePosition objects
         self.accountLog = pd.DataFrame()
         self.market = marketObj
         self.marginFlag = 0
     
-
-
         ##################
         # ACCOUNT METHODS
         ##################
@@ -49,9 +49,10 @@ class TradingAccount():
         accVal = self.getAccountValue()
         sufficientMargin = False
         if self.hasOpenPosition():
+            curPos = self.getCurrentPosition()
             assetDataCurBar = self.market.getData(self.activeAssetId)
-            accValueAtLow = accVal + self.getCurrentPosition().getPositionValue(price=assetDataCurBar['l'])
-            accValueAtHigh = accVal + self.getCurrentPosition().getPositionValue(price=assetDataCurBar['h'])
+            accValueAtLow = accVal + curPos.getPositionValue(price=assetDataCurBar['l'])
+            accValueAtHigh = accVal + curPos.getPositionValue(price=assetDataCurBar['h'])
             sufficientMargin = (accValueAtLow > marginRequirementValue and accValueAtHigh > marginRequirementValue)
             if not sufficientMargin: self.marginFlag = 3 #margin call would have occurred during last candle
         else:
@@ -70,8 +71,7 @@ class TradingAccount():
 
     def enterPosition(self, orderType="buy"):
         """ handles new position - if a trade is already open and is the opposite orderType, that trade will be closed; If an open trade in the same direction exists, or orderType=None, no action is taken"""
-        if orderType == None:
-            return
+        if orderType == None or self.positionSize == 0: return
         if not self.hasOpenPosition() and self.checkMargin():
             activeAsset = self.market.getAsset(self.activeAssetId)
             self.positions.append(TradePosition(activeAsset,orderType,self.positionSize,activeAsset.getClosePrice(),entryBarNum=self.market.currentBarNum,enableCommission=self.enableCommission))
@@ -84,6 +84,13 @@ class TradingAccount():
         if(curPos==None): return False
         curPos.closePosition()
         self.adjustBalance(curPos.getPositionValue())
+
+    def adjustPositionSize(self,amount, verifyMarginReq=True, minPositionSize = 0):
+        """ modifies current position size by given amount; if verifyMarginReq, then any adjustment which exceed margin reqs will be ignored; new position size will not exceed minPositionSize """
+        newSize=self.positionSize+amount
+        if newSize < minPositionSize: newSize = minPositionSize
+        if verifyMarginReq and (self.getAccountValue() < (newSize * self.marginRequirement)): return
+        self.positionSize=newSize
 
         #############################
         # POSITION INFO METHODS
@@ -133,7 +140,7 @@ class TradingAccount():
 
     def reset(self):
         """ reinits self """
-        self.__init__(self.market,self.initialBalance,self.marginRequirement,self.enableCommission)
+        self.__init__(marketObj=self.market,initialBalance=self.initialBalance,marginRequirement=self.marginRequirement,enableCommission=self.enableCommission,positionSize=self.initPositionSize)
 
 
 

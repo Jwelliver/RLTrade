@@ -24,7 +24,8 @@ def customTradeSimReportPlot_1(csvPath, tradeReportPlotter, figTitle='TradeRepor
     trp.plotTrades(reportDf, overviewAx)
     trp.plotActions(reportDf)
     trp.plotReward(reportDf)
-    trp.plotAccountvalue(reportDf)
+    trp.plotAccountValue(reportDf)
+    trp.plotUnrealizedPL(reportDf)
     
     plt.show(block=pauseOnShow)
 
@@ -55,6 +56,6 @@ tPath = './reportLogs/plotting_test/reportFile1.csv'
 #t.plotTradeSimReportFromCsv(n)
 '''
 
-agentName = 'Lamont_Mays'
-simsToPlot = list(range(1,4,1))
+agentName = 'Helen_Seipp'
+simsToPlot = list(range(1,6,1))
 plotTradeSimReportByAgentName(agentName,simsToPlot)

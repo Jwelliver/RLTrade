@@ -38,7 +38,8 @@ def baseline3(tradingAccount):
         posValue = posJustClosed.getPositionValue()
         accBalBeforeTrade = tradingAccount.accountBalance - posValue
         posValPctOfAcc = posValue / accBalBeforeTrade
-        reward = 1 if posValue > 0 else -1
+        reward = 1 if posValPctOfAcc > 0 else -1
+        #return reward + posValPctOfAcc # reward for closing a position
         return reward + posValPctOfAcc # reward for closing a position
 
     if tradingAccount.hasOpenPosition():
@@ -50,8 +51,36 @@ def baseline3(tradingAccount):
         #print('rewardBrainstorm1.baseline3() > debug pos 1 | posVal: {} | nBarsHeld: {} | accBalBeforeTrade: {}'.format(posVal,nBarsHeld,accBalBeforeTrade))
         posValPctOfAcc = posVal / accBalBeforeTrade
         #print('rewardBrainstorm1.baseline3() > debug pos 2 | posValPctAcc: {}'.format(posValPctOfAcc))
-        return (posValPctOfAcc/nBarsHeld) if curPos.getPositionValue() > 0 else (-0.1 + (-0.01*nBarsHeld)) # currently in winning or losing/breakeven pos
+        return (posValPctOfAcc/nBarsHeld) if posVal > 0 else (-0.1 + (-0.01*nBarsHeld)) # currently in winning or losing/breakeven pos
     else:
         return -0.01 #Not in pos
 
     return -99999 # return catchall - may want to change this to 0 after testing
+
+
+def baseline4(tradingAccount):
+    """ default: 0; onWinClosed: 1 +(posValue/accVal); onLossClosed: -1 + (posVal/accVal) """
+
+    posJustClosed = tradingAccount.getPositionClosedOnLastBar()
+    #print('rewardBrainstorm1.baseline3() > barNum: {} '.format(tradingAccount.market.currentBarNum))
+    if posJustClosed !=None:
+        #print('rewardBrainstorm1.baseline3() > posJustClose !=None ')
+        posValue = posJustClosed.getPositionValue()
+        accBalBeforeTrade = tradingAccount.accountBalance - posValue
+        posValPctOfAcc = posValue / accBalBeforeTrade
+        reward = 10 if posValue > 0 else -10
+        #return reward + posValPctOfAcc # reward for closing a position
+        return reward + posValue # reward for closing a position
+
+    return 0
+
+def baseline5(tradingAccount):
+    """ default: 0; onWinClosed: posValue; onLossClosed: posVal"""
+    posJustClosed = tradingAccount.getPositionClosedOnLastBar()
+    #print('rewardBrainstorm1.baseline3() > barNum: {} '.format(tradingAccount.market.currentBarNum))
+    if posJustClosed !=None:
+        #print('rewardBrainstorm1.baseline3() > posJustClose !=None ')
+        posValue = posJustClosed.getPositionValue()
+        return posValue # reward for closing a position
+
+    return 0

@@ -44,7 +44,7 @@ class RLTradeReportPlotter():
         self.plotTrades(reportDf, overviewAx)
         self.plotActions(reportDf)
         self.plotReward(reportDf)
-        self.plotAccountvalue(reportDf)
+        self.plotAccountValue(reportDf)
         
         plt.show(block=pauseOnShow)
     
@@ -95,11 +95,33 @@ class RLTradeReportPlotter():
         ax.plot(sma,':k')
         return ax
 
-    def plotAccountvalue(self, reportDf, ax=None):
+    def plotUnrealizedPL(self, reportDf, ax=None):
+        """ plots unrealized PL """
+        if ax==None: ax=self.addSubplot()
+        bars = reportDf['barNum'].values
+        upl = reportDf['unrealizedPL'].values
+        sma = reportDf['unrealizedPL'].rolling(window=10).mean()
+        ax.set_title('Unrealized PL')
+        mask1 = upl >= 0
+        mask2 = upl < 0
+        ax.bar(bars[mask1],upl[mask1],color='g')
+        ax.bar(bars[mask2],upl[mask2],color='r')
+        ax.plot(sma,':k')
+        return ax
+
+    def plotAccountValue(self, reportDf, ax=None):
         """ plots account value """
         if ax==None: ax=self.addSubplot()
-        ax.set_title('Account Value')
+        ax.set_title('Account Value (equity)')
         ax.plot(reportDf['accountValue'],'b') 
+        ax.plot(reportDf['accountBalance'],'k')
+        return ax
+
+    def plotAccountBalance(self, reportDf, ax=None):
+        """ plots account value """
+        if ax==None: ax=self.addSubplot()
+        ax.set_title('Account Balance')
+        ax.plot(reportDf['accountBalance'],'b') 
         return ax
     
     def plotStateFeatures(self,reportDf,stateFeatureTitleList=None, ax=None): #currently pretty rigid functionality; either will print all state features onto the given axis, or will plot them separately; todo: fix that; allow for specific state features; allow options for different plot types per feature

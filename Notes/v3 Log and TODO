@@ -1,58 +1,51 @@
-120819
-
-
-
-General:
-
-
-    complete v3 architecture design: 
-        ✔ The TradeEnv class seems about ready to be subclassed. @done(19-12-12 21:23)
-        ✔ You need to determine any tweaks that need to be made to TradingAccount and Market. @done(19-12-14 22:34)
-            TradingAccount seems like it already has everything needed to be passed to TradeEnv as it's "trader".
-    
-        ✔ update for below: Experiment class started - you should make the super class general, and then subclass for a TradingExperiment,, which expects and handles a by-bar training loop. @done(19-12-12 19:44)
-            -You may still want to create an Experiment class which will contain the current main.py loop in a "run()" function, or something.
-            -takes an agent and the env, and anything else required (e.g. nEpisodes)
-            and handles the actual training process.
-                -this class would provide the structure for training, and 
-                handle all the extra stuff like terminal updates, timing, model saving, etc.
-                -This could also be the uppermost class to handle reporting, taking it
-                away from the environment responsibilities. 
-                    -maybe env should still keep a relevant log, but experiment handles exporting and naming, etc.
-
-                -should have either an overridable method or user can provide a callable method
-                ... which is called at various parts of training to add custom functionality.
-                ... e.g. on the "if done" part, or after each epoch.. that would allow the generic experiment class to still
-                ... allow for things like calling replay on agents that need it, etc.
-
-==
-sidenote
-    12/8/19 9:55PM
-    The deepwell framework is concieved.
-==
-
-        ✔ finish RLExperiment abstract class .. should be compatible with @done(19-12-12 19:46)
-            ...any generic RL training task (or most, don't get stuck)
-            -(done)add user callback functions
-
-        ✔ then, finish RLTradingExperiment class.. should inherit RLExperiment @done(19-12-12 19:47)
-            ...and the run function should accomplish everything from v2's main.py loop.
-
-
+Created: 120819
 
 
 
 current:
 
     ** YOU ARE HERE **
-    - write a cool reward function and play around/test it a bit.. if you're going to design something, handle the reporting and the visualization.
 
-    ✔ continue reconstructing main.py in new v3 architecture and test until it works @done(19-12-14 21:29)
-        ✔ test the userMethodDict approach and the subclass approach @done(19-12-14 22:35)
-            - for the subclass approach, you can create a reusable subclass for use with the DQNAgent.
+    - remember that this is for you and the goal is to create a flexible sandbox environment for developing and testing trading-related agents.
+        ... don't be afraid to sacrifice abstration because you might end up using the higher level components as a general purpose RL framework.
+        -Make the tools and things that are fun and effective.
+    
+    - create a modular state and reward function library
+        ... should have an individual function that obtains specific rewards or states
+        ... these functions can just be swaped in and out of the enironement's getReward and getState methods.
+            ... a predefined format would allow you to define a convention for returning metadata (i.e. a brief description) for each function.
+                -e.g. each has "asDescription=False" param, which, when true, returns the functions str descriptor
+        - consider creating classes to contain the component functions 
+            -consider using "component container" super class?... 
+                -this can handle basic methods regarding getting metadata
+                -possibly can also allow quick setup/usage of component groups.. then we just reference the component group in the reward/state/action functions
+            -this may be more efficient, as you will be able to provide the class with references to the objects they need instead of needing to worry about passing it
+
+    - finish implementing experiment.details 
+        ... needs to be added to console log
+        ... may need it's own modify method.
+
+
+    - design framework for agents that choose their own state space
+        ... This could start just with a framework for easily applying TA to any asset,
+            ... then, create a system that either generates state spaces, or generates specialized agents that come with prepacked "sensors" for interpreting an asset, i.e. a specific set of TA indicators and params
+                ...they could then be evaluated independetly, or the optimizing system can utilize a genetic/evolution approach.
+
 
         
 later:
+
+
+    - Add structured meta data as a feature on the Experiment class
+        -For example, require that the user provides specific information about state features and rewards used so that this information is retained and can be observed/compared
+            ... when viewing a specific experiement's results.
+            -This could be implemented by providing specific callbacks or overriding methods dedicated to getting the description in a specific format.
+            -or, maybe, the relevant files (experiment and env subclasses,.. maybe somehow the separate reward libraries,etc ) are saves and copied into the experiment's dir.
+                ... then, those files are used when loading an experiment.
+                ... Similarly, all agent models run during under those specific experiment params will be saved in the experiment dir.
+                    ... This might have to be reconsidered (or just overridden in subclass) if implementing dynamic experiment params, e.g. in the case of evolving state spaces or multi agent experiments.
+
+    - consider how to refactor reporting (and maybe visualization)
 
     - setup parallel processing using multiprocessing module;
         - also, TFF has distributed training which can take advantage of multiple GPU
@@ -150,3 +143,42 @@ Things User should know:
 
 
 
+done: 
+
+    ✔ The TradeEnv class seems about ready to be subclassed. @done(19-12-12 21:23)
+    ✔ You need to determine any tweaks that need to be made to TradingAccount and Market. @done(19-12-14 22:34)
+        TradingAccount seems like it already has everything needed to be passed to TradeEnv as it's "trader".
+
+    ✔ update for below: Experiment class started - you should make the super class general, and then subclass for a TradingExperiment,, which expects and handles a by-bar training loop. @done(19-12-12 19:44)
+        -You may still want to create an Experiment class which will contain the current main.py loop in a "run()" function, or something.
+        -takes an agent and the env, and anything else required (e.g. nEpisodes)
+        and handles the actual training process.
+            -this class would provide the structure for training, and 
+            handle all the extra stuff like terminal updates, timing, model saving, etc.
+            -This could also be the uppermost class to handle reporting, taking it
+            away from the environment responsibilities. 
+                -maybe env should still keep a relevant log, but experiment handles exporting and naming, etc.
+
+            -should have either an overridable method or user can provide a callable method
+            ... which is called at various parts of training to add custom functionality.
+            ... e.g. on the "if done" part, or after each epoch.. that would allow the generic experiment class to still
+            ... allow for things like calling replay on agents that need it, etc.
+
+    ==
+    sidenote
+    12/8/19 9:55PM
+    The deepwell framework is concieved.
+    ==
+
+    ✔ finish RLExperiment abstract class .. should be compatible with @done(19-12-12 19:46)
+        ...any generic RL training task (or most, don't get stuck)
+        -(done)add user callback functions
+
+    ✔ then, finish RLTradingExperiment class.. should inherit RLExperiment @done(19-12-12 19:47)
+        ...and the run function should accomplish everything from v2's main.py loop.
+
+
+
+    ✔ continue reconstructing main.py in new v3 architecture and test until it works @done(19-12-14 21:29)
+        ✔ test the userMethodDict approach and the subclass approach @done(19-12-14 22:35)
+            - for the subclass approach, you can create a reusable subclass for use with the DQNAgent.

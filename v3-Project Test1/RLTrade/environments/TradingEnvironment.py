@@ -59,13 +59,13 @@ class TradingEnvironment(gym.Env):
         self.addReportData({'action': action}, self.market.currentBarNum-1) #log last bar's action
         return observation,reward,done,info
 
-    def reset(self):
+    def reset(self,fullInit=False):
         """Resets the state of the environment and returns an initial observation.
         Returns:
             observation (object): the initial observation.
         """
         self.simNum+=1
-        self.reinitialize()
+        self.reinitialize(fullInit)
         initialObservation = self.getStateObservation()
         self.logReportData(initialObservation,0,self.isDone(),self.getInfo())
         return initialObservation
@@ -104,21 +104,23 @@ class TradingEnvironment(gym.Env):
         """ returns size of observation space """
         return self.getObservationSpace().shape[0]
 
-    def reinitialize(self):
+    def reinitialize(self,fullInit=False):
         """ re-initializes environment for new start  - adds current sim to sim history, uses it's ohlc and starting balance to reinit new tradingSim """
+        if fullInit: self.__init__(tradingAccount=self.trader,reportLogDir=self.reportLogDir)
         self.reportHistory.append(self.report)
         self.report = pd.DataFrame() # reset report
         self.market.reset()
         self.trader.reset()
         self.eventFlag = 0
         self.stopFlag = 0
-
+        
     def getReward(self):
-        """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """
+        """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """ #122119: commenting out try/except for now
         #Note: Do not override this - Override getRewardDict() instead.
-        try: reward = self.getRewardDict()[self.eventFlag]
+        '''try: reward = self.getRewardDict()[self.eventFlag]
         except: reward = 0
-        return reward
+        return reward'''
+        return self.getRewardDict()[self.eventFlag]
 
     def setEventFlag(self):
         """ sets a unique integer which is used to represent the occurence of certain conditions in the environment. The flag is used to determine which reward is given. e.g. if the account has a margin call after the last step, the flag is set, making the margin call visible to the reward function.
@@ -151,6 +153,7 @@ class TradingEnvironment(gym.Env):
                     'nTrades':len(self.trader.positions), 
                     'tradeOpen':self.trader.hasOpenPosition(), 
                     'accountValue': self.trader.getAccountValue(includeUnrealizedPL=True), 
+                    'accountBalance': self.trader.getAccountValue(includeUnrealizedPL=False), 
                     'unrealizedPL': self.trader.getUnrealizedPL(),
                     'allPL': self.trader.getRealizedPL()}
         return infoDict
@@ -180,8 +183,11 @@ class TradingEnvironment(gym.Env):
         logData.update(self.market.getOHLC(activeAssetId).to_dict())
         logData.update({'stateFeature_' + str(i): observation[i] for i in range(len(observation))})
         logData['reward'] = reward
+        if barNum == 0: logData['totalReward'] = reward
+        else: logData['totalReward'] = self.report.iloc[-1]['totalReward'] +reward
         logData.update(info)
         logData['positionStatus'] = self.trader.getPositionStatus()
+        logData['positionSize'] = self.trader.positionSize
         tradeJustOpened = self.trader.getPositionOpenedOnLastBar()
         tradeJustClosed = self.trader.getPositionClosedOnLastBar()
         logData['entryPrice'] = "" if tradeJustOpened==None else tradeJustOpened.entryPrice

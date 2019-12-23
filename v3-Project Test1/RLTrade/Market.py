@@ -44,22 +44,22 @@ class Market():
         features = []
         for i in assetIdList:
             for k in featureKeyList:
-                features.append(self.market.getData(i,k))
+                features.append(self.getData(i,k))
         return features
 
     def getAssetIdListFromValue(self, valueToCheck, excludeInvalids=True):
         """ takes a value or list of values (can be existing assetId (as int) or asset name (as str)) and returns a list of verified assetId if found. If not found, returns None """
-        if type(valueToCheck) != 'list': valueToCheck = [valueToCheck]
+        if not isinstance(valueToCheck,list): valueToCheck = [valueToCheck]
         verifiedIdList = []
         if len(self.assets) == 0: return []
         for i in valueToCheck:
             id = None
-            if type(i)=='int': 
+            if type(i) is int: 
                 if i >= 0 and i <= len(self.assets)-1: id = i
-            elif type(i)=='str':
-                id = self.getAssetIdByName
+            elif type(i) is str:
+                id = self.getAssetIdByName(i)
             if id == None and excludeInvalids: continue
-            verifiedIdList.append(i)
+            verifiedIdList.append(id)
         return verifiedIdList
 
     def getAssetIdByName(self, assetName):

@@ -19,7 +19,7 @@ import numpy as np
 
 class RLExperiment():
 
-    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None, resetEnvOnNewEpisode=True, callbacksDict = None):
+    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None, resetEnvOnNewEpisode=True, callbacksDict = None, metadata = {}):
         self.agent = agent
         self.env = environment
         self.nEpisodes = nEpisodes
@@ -37,6 +37,7 @@ class RLExperiment():
         self.reward = None
         self.info = None
         self.episodeStartTime = 0
+        self.metadata = metadata #store experiment details here. e.g. reward/state descriptions, etc.
         self.consoleLog = '\n\n=========\n\n'
         os.environ["CUDA_VISIBLE_DEVICES"]=cudaDevices #  '-1' = CPU,  '0,1' makes GPUs 0 and 1 visible.
 
@@ -64,6 +65,7 @@ class RLExperiment():
         """ called when all episodes have finished """
         self.consoleMsg("--------> ALL episodes completed in {} | -- Saving Model -> {}".format(timedelta(seconds=self.totalTimeElapsed),self.env.getReportLogDir()),topBorder=True,bottomBorder=True)
         self.agent.save(self.env.getReportLogDir()+"/"+self.env.environmentID + '_ModelWeights.h5')
+        self.onExperimentComplete_user()
     
     def envReset(self):
         """ handles environment reset """
@@ -111,7 +113,7 @@ class RLExperiment():
     def saveConsoleLog(self,path=None):
         """  saves contents of self.consoleLog to path; if path==None, the environment's reportLogDir is used. """
         if path==None: path = self.env.getReportLogDir() + '/consoleLog.txt'
-        with open(path, 'a') as f: 
+        with open(path, 'w') as f: 
             f.write(self.consoleLog)
 
     #
@@ -137,3 +139,6 @@ class RLExperiment():
         """ called at the end of the built-in onDone() method """
         self.userCallBack('onDone')
 
+    def onExperimentComplete_user(self):
+        """ called at the end of the built-in onExperimentComplete() method """
+        self.userCallBack('onExperimentComplete')
