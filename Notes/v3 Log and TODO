@@ -6,10 +6,26 @@ current:
 
     ** YOU ARE HERE **
 
+
+    - design the multiarmed bandit problem using the RLTrade architecture.
+        ... this will help solidify the current framework workflow and responsibility distribution (which you should record)
+            ... doing this should help highlight the areas that need refining, and how best to approach it for generalized functionality
+            ... these areas include - where to use ABCs, how to handle reporting overall (this should be transfered from environment to experiment class),
+                ... and how to evaluate agent data.
+                    - maybe a reporting/visualization super class can be used to inherit for specific agents (and other classes if needed)
+                        this would enable modular reporting which handles different types of agents, depending on the reporting characteristics of interest.
+                - search for ways to clearly define the ultimate functionality that the framework is intended to handle/provide to general RL dev process
+                    -a pipline adds useful structures such as reporting, and modular state/action/reward groups, while remaining flexible enough to be applied to most RL problems
+
+    - Agent interface should require self reporting such that it will log it's own predictions when the "act" method is called.
+        ... this will help prevent excess slow down by querying the network in a separate location, essentially having two calls per step.
+
+    - Now that we're logging agent data, create the visualization.
+
     - remember that this is for you and the goal is to create a flexible sandbox environment for developing and testing trading-related agents.
         ... don't be afraid to sacrifice abstration because you might end up using the higher level components as a general purpose RL framework.
         -Make the tools and things that are fun and effective.
-    
+
     - create a modular state and reward function library
         ... should have an individual function that obtains specific rewards or states
         ... these functions can just be swaped in and out of the enironement's getReward and getState methods.
@@ -20,6 +36,7 @@ current:
                 -this can handle basic methods regarding getting metadata
                 -possibly can also allow quick setup/usage of component groups.. then we just reference the component group in the reward/state/action functions
             -this may be more efficient, as you will be able to provide the class with references to the objects they need instead of needing to worry about passing it
+        - Most of this has been implemented - Need to unify everything such that groups of states/rewards/actions can be made and processed by the environment class, utilizing the metaData functionality
 
     - finish implementing experiment.details 
         ... needs to be added to console log
@@ -32,9 +49,23 @@ current:
                 ...they could then be evaluated independetly, or the optimizing system can utilize a genetic/evolution approach.
 
 
-        
 later:
 
+    - RLTradeReportPlotter.plotActions should use action names as y axis, or include legend
+
+    - allow experiments to reset and run multiple times, using the same agent
+        -consider allowing the option of using the same agent or not
+        -This funcitonality exists in current main.py
+
+    - consider using abstract base classes (abc module) to create interfaces for the various main classes 
+
+    - May want to move 'positionSizeIncrement' attribute from TradingEnv to TradingAccount
+
+    - TradingAccount.enterPosition() - Reversal feature
+        -was about to put this in place, but realized that would log two position entries on a single bar, which won't be compatible with some things
+            -the only thing I can think of now is the "getLastClosedTrade" features - this will need to be updated to search for the most recent closed trade rather than
+                ... just using the most recent index.
+            -Commented out the enterPosition() method with reversal functionality until this is taken care of.
 
     - Add structured meta data as a feature on the Experiment class
         -For example, require that the user provides specific information about state features and rewards used so that this information is retained and can be observed/compared

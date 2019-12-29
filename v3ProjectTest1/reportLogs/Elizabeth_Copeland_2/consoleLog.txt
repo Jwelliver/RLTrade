@@ -1,0 +1,35 @@
+
+
+=========
+
+
+==============================
+04:10:41 | **Experiment Start**
+==============================
+04:10:41 | ---> Starting Episode 1/10 <---
+04:13:52 | Episode 1 completed in 0:03:11.315668 seconds. | 9 episodes (0:28:41.841009) remaining
+04:13:52 | {'simNum': 1, 'eventFlag': 3, 'stopFlag': 3, 'barNum': 229, 'nTrades': 3, 'tradeOpen': True, 'accountValue': 496.843152834359, 'accountBalance': 516.1186025895219, 'unrealizedPL': -19.275449755162896, 'allPL': 16.118602589521856, 'totalReward': -4.96797982434635}
+==============================
+04:13:52 | ---> Starting Episode 2/10 <---
+04:15:18 | Episode 2 completed in 0:01:26.140490 seconds. | 8 episodes (0:18:29.824632) remaining
+04:15:18 | {'simNum': 2, 'eventFlag': 3, 'stopFlag': 3, 'barNum': 102, 'nTrades': 3, 'tradeOpen': True, 'accountValue': 492.99749699073914, 'accountBalance': 505.69705065041666, 'unrealizedPL': -12.699553659677509, 'allPL': 5.6970506504166565, 'totalReward': -4.988637411282302}
+==============================
+04:15:18 | ---> Starting Episode 3/10 <---
+04:25:34 | Episode 3 completed in 0:10:15.668164 seconds. | 7 episodes (0:34:43.956751) remaining
+04:25:34 | {'simNum': 3, 'eventFlag': 3, 'stopFlag': 3, 'barNum': 432, 'nTrades': 2, 'tradeOpen': True, 'accountValue': 409.9956409123298, 'accountBalance': 509.21583086685297, 'unrealizedPL': -99.22018995452316, 'allPL': 9.215830866852968, 'totalReward': -4.981568338266294}
+==============================
+04:25:34 | ---> Starting Episode 4/10 <---
+06:28:01 | Episode 4 completed in 2:02:27.371825 seconds. | 6 episodes (3:26:00.744220) remaining
+06:28:01 | {'simNum': 4, 'eventFlag': 1, 'stopFlag': 1, 'barNum': 499, 'nTrades': 1, 'tradeOpen': False, 'accountValue': 508.1284260385527, 'accountBalance': 508.1284260385527, 'unrealizedPL': 0, 'allPL': 8.128426038552675, 'totalReward': 0.03251370415421069}
+==============================
+06:28:01 | ---> Starting Episode 5/10 <---
+06:35:07 | Episode 5 completed in 0:07:05.960738 seconds. | 5 episodes (2:24:26.456885) remaining
+06:35:07 | {'simNum': 5, 'eventFlag': 1, 'stopFlag': 1, 'barNum': 499, 'nTrades': 1, 'tradeOpen': False, 'accountValue': 480.0636662681596, 'accountBalance': 480.0636662681596, 'unrealizedPL': 0, 'allPL': -19.93633373184042, 'totalReward': -0.07974533492736166}
+==============================
+06:35:08 | ---> Starting Episode 6/10 <---
+06:48:06 | Episode 6 completed in 0:12:58.483565 seconds. | 4 episodes (1:44:56.626967) remaining
+06:48:06 | {'simNum': 6, 'eventFlag': 1, 'stopFlag': 1, 'barNum': 499, 'nTrades': 1, 'tradeOpen': True, 'accountValue': 444.26270772643886, 'accountBalance': 500, 'unrealizedPL': -55.73729227356111, 'allPL': 0, 'totalReward': 0.0}
+==============================
+06:48:06 | ---> Starting Episode 7/10 <---
+06:54:07 | Episode 7 completed in 0:06:00.543045 seconds. | 3 episodes (1:10:02.350069) remaining
+06:54:07 | {'simNum': 7, 'eventFlag': 1, 'stopFlag': 1, 'barNum': 499, 'nTrades': 49, 'tradeOpen': True, 'accountValue': 484.28577380568237, 'accountBalance': 498.54165426991534, 'unrealizedPL': -14.255880464232995, 'allPL': -1.458345730084659, 'totalReward': 0.02038788403083501}

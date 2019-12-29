@@ -1,0 +1,12 @@
+
+
+=========
+
+
+19:43:03 | Starting Experiment 0/1
+==============================
+19:43:03 | **Experiment Start**
+==============================
+19:43:03 | ---> Starting Episode 1/1 <---
+19:43:10 | Episode 1 completed in 0:00:06.642961 seconds. | 0 episodes (0:00:00) remaining
+19:43:10 | {'simNum': 1, 'eventFlag': 1, 'stopFlag': 1, 'barNum': 99, 'nTrades': 6, 'tradeOpen': False, 'accountValue': 513.4406654957226, 'accountBalance': 513.4406654957226, 'unrealizedPL': 0, 'allPL': 13.440665495722556, 'totalReward': 0.0535793491808626}
