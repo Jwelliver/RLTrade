@@ -1,0 +1,9 @@
+Component based workflow thought process.
+
+
+Action , state features, and reward function are all defined individually and packaged into RLComponent objects.
+This can all be done in a project library.
+
+In a separate library, the user can package individual RLComponents into ComponentGroups.
+
+These Component groups can then be imported and referenced in Main when setting up an experiment

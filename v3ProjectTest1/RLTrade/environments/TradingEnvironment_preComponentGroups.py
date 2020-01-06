@@ -88,7 +88,8 @@ class TradingEnvironment(gym.Env):
 
     def getActionSpace(self):
         """ returns action space obj """
-        return gym.spaces.Discrete(len(self.actions.componentList))
+        actDict = self.getActionDict()
+        return gym.spaces.Discrete(len(actDict))
     
     def getActionSpaceSize(self):
         """ returns size of action space """
@@ -112,6 +113,14 @@ class TradingEnvironment(gym.Env):
         self.trader.reset()
         self.eventFlag = 0
         self.stopFlag = 0
+        
+    def getReward(self):
+        """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """ #122119: commenting out try/except for now
+        #Note: Do not override this - Override getRewardDict() instead.
+        '''try: reward = self.getRewardDict()[self.eventFlag]
+        except: reward = 0
+        return reward'''
+        return self.getRewardDict()[self.eventFlag]
 
     def setEventFlag(self):
         """ sets a unique integer which is used to represent the occurence of certain conditions in the environment. The flag is used to determine which reward is given. e.g. if the account has a margin call after the last step, the flag is set, making the margin call visible to the reward function.
@@ -202,15 +211,28 @@ class TradingEnvironment(gym.Env):
         #############################
         # PRIMARY METHODS TO OVERRIDE
         #############################
+    
+    def getActionDict(self):
+        """ returns dictionary where keys are indexes and values are arbitrary action values which will be used by the doAction() method """
+        return { 0: None, 1: 'buy', 2: 'sell'}
 
     def doAction(self, action):
         """ performs action on the environment """
-        self.actions.doAction(action)
+        #Default: 0 = do nothing; 1 = Buy; 2 = Sell
+        tradeAction = self.getActionDict()[action]
+        self.trader.enterPosition(tradeAction)
 
     def getStateObservation(self):
         """ returns current observation """
-        return stateFeatures.getStateObservation()
+        pass
 
-    def getReward(self):
-        """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """ #122119: commenting out try/except for now
-        return rewards.getReward()
+    def getRewardDict(self):
+        """ returns the current reward for each eventFlag - You can set eventFlags in self.getEventFlag() """
+        normalReward = 1
+        rewardDict = {
+            0: normalReward,
+            1: normalReward,
+            2: -10, 
+            3: -10,
+        }
+        return rewardDict

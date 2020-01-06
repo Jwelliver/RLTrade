@@ -4,7 +4,7 @@ Created: 120819
 
 current:
 
-    ** YOU ARE HERE **
+   
 
 
     - design the multiarmed bandit problem using the RLTrade architecture.
@@ -32,11 +32,48 @@ current:
             ... a predefined format would allow you to define a convention for returning metadata (i.e. a brief description) for each function.
                 -e.g. each has "asDescription=False" param, which, when true, returns the functions str descriptor
         - consider creating classes to contain the component functions 
+            -the main points of these would be 
+                -1. to introduce structure that allows a consistent way to track metadata from different states/actions/reward without requiring the user to
+                    ... subclass a new environment and/or constantly update metadata for every change to these groups..
+                -2 to allow for systematic interchangability during experiment runtimes and being able to track those changes, and have accurate metadata throughout the experiment
             -consider using "component container" super class?... 
                 -this can handle basic methods regarding getting metadata
                 -possibly can also allow quick setup/usage of component groups.. then we just reference the component group in the reward/state/action functions
             -this may be more efficient, as you will be able to provide the class with references to the objects they need instead of needing to worry about passing it
+                -this could be done by mapping arguments, including object references, to strings in a dict that the class has - and then mapping the params that each function needs....
+                    ... at runtime, each function will be called and the arg strings will 
         - Most of this has been implemented - Need to unify everything such that groups of states/rewards/actions can be made and processed by the environment class, utilizing the metaData functionality
+            -Two possible approaches (briefly described above)
+                -1. Use RLComponent class to package individual functions, adding properties to handle metadata... then, package these RLComponents into ComponentGroup classes for plugging into the environment.
+                    -an issue here is that having the function's metadata be handled in the class limits user's ability to create custom functionality without subclassing.. which would be messy to have a bunch of
+                        ... components instantiated and then 1 or 2 randoms that need to be subclassed..
+                            -this is resolvable by expecting/allowing metadata from the callback function (i.e. using the getMetaData param which is currently used in )
+                    -consider having swappable parameter "sets" for RLComponent - and for ComponentGroups, you can enable/disable various components and maybe store/swap presets of enabled groups
+                    -consider a way to have access to RL objects (env,experiment,etc) as default in these classes.. then user can reference them in callbacks without worrying about setting them up in the argList
+                -2. Only use ComponentGroup class and design it to directly reference callback functions, or overridden functions as a subclass
+
+                -Note - Either of the above might be uneccessary extra work and hinder the flow, while also decreasing experiment speed & increasing memory.
+                -To avoid using Component classes, you can just keep the component metadata structure in the state/action/reward methods, and implement functions in the Environment class that access that data, or
+                    ... you can simply provide a method where the use can provide all neccessary metadata (i.e. the experiment.metadata dict)
+                    - 122819  Am testing the RLComponent approach (1):
+                        -Create RLComponent Class
+                        -Create RLComponentGroup Class
+                        -Create Action/StateFeature/Reward group classes
+                        -Edit TradingEnvironment to expect and use component groups
+                        `** YOU ARE HERE **`
+                            -creating ProjectComponents/"group" files
+                                -already finished "actionGroups"
+                                -trying to figure out if there is a better way to combine reward functions other than creating compound functions
+                                -once finished setting up the groups, continue to setup a test using the componentgroups.
+                            -currently just working with old TradingEnvironment class (without inheriting RLEnv) to get components working - then you can move to the lines below.
+                            -create environment super class
+                                -move reporting features to Experiment
+                                    -skipping this for now .. look into decorators (and property decorator) to see if it might provide a better solution for reporting
+                            -recreate Trading Environment sub class
+                        -Edit component methods to expect env as first param(instead of trader), and try creating component groups
+                        - Alternative approach to RLComponent classes - See if you can use decorators to assign a function as an "action function", "reward function", etc. 
+                            -maybe the decorator can then handle the RLComponent group behavior behind the scenes rather than forcing the user to setup individual component classes, and then the group classes.
+
 
     - finish implementing experiment.details 
         ... needs to be added to console log

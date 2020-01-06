@@ -48,7 +48,7 @@ def position_onClosed_posValAsPctChangeOfAcc(tradingAccount,default=0, getMetada
 ##### Position info | "open" functions #####
 
 def position_open_userDefined(tradingAccount,positiveReward=0,negativeReward=0,breakEvenReward=None, breakevenBias='+',default=0, getMetadata=False):
-    """ returns positiveReward or negativeReward based on value of position just closed; if breakEvenReward==None, breakevenBias is used to determine whether the pos or neg reward is returned in a breakeven(val==0) position; If no trade was just closed, returns default """ 
+    """ returns positiveReward or negativeReward based on value of currently open position; if breakEvenReward==None, breakevenBias is used to determine whether the pos or neg reward is returned in a breakeven(val==0) position; If no trade was just closed, returns default """ 
     if getMetadata: return {'name': 'position_open_userDefined','desc': 'User-defined Positive/Negative/Breakeven rewards on open position; otherwise, returns default value'}
     curPos = tradingAccount.getCurrentPosition()
     if curPos !=None: 

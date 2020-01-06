@@ -1,9 +1,8 @@
 """
-120819
-TradingEnvironment
+122819
+RLEnvironment
 
-Framework environment for use with a TraderAccount and Market.
-This can be subclassed to set up individual experiments.
+Superclass for Environments in this framework
 
 """
 
@@ -15,21 +14,20 @@ import datetime
 import os
 import names
 
-class TradingEnvironment(gym.Env):
+class RLEnvironment(gym.Env):
 
-    def __init__(self, tradingAccount, reportLogDir="./reportLogs"):
-        self.trader = tradingAccount
-        self.market = self.trader.market
+    def __init__(self, stateFeatureFunctions, actionFunctions, rewardFunctions, reportLogDir="./reportLogs"):
 
-        self.action_space = self.getActionSpace()
-        self.observation_space = self.getObservationSpace()
+        self.stateFeautures = stateFeatureFunctions
+        self.actions = actionFunctions
+        self.rewards = rewardFunctions
 
         self.reportHistory = []
         self.report = pd.DataFrame() #collects data for export/analysis
         self.reportLogDir = reportLogDir
         self.environmentID = self.generateEnvironmentId() #random string used as a unique ID when exporting a group of sim reports
-        
         self.simNum = 0 #tracks resets to log simNum data
+
         self.eventFlag = 0 # updated each update(); Rewards can differ based on this.
         self.stopFlag = 0 # setting this to anything other than 0 will trigger the default isDone() bool.
 
@@ -82,7 +80,6 @@ class TradingEnvironment(gym.Env):
 
     def updateEnv(self):
         """ called on step, handles step updates """
-        self.market.advance()
         self.setEventFlag()
         self.setStopFlag()
 
@@ -108,23 +105,12 @@ class TradingEnvironment(gym.Env):
         if fullInit: self.__init__(tradingAccount=self.trader,reportLogDir=self.reportLogDir)
         self.reportHistory.append(self.report)
         self.report = pd.DataFrame() # reset report
-        self.market.reset()
-        self.trader.reset()
         self.eventFlag = 0
         self.stopFlag = 0
 
     def setEventFlag(self):
-        """ sets a unique integer which is used to represent the occurence of certain conditions in the environment. The flag is used to determine which reward is given. e.g. if the account has a margin call after the last step, the flag is set, making the margin call visible to the reward function.
-        returns:
-            0: normal; no even.
-            1: reached end of ohlc data
-            2: marginCall
-            3: financial ruin / not enough margin to place another trade
-        """
-        if self.market.currentBarNum >= self.market.getBarCount():
-            self.eventFlag = 1
-        if self.trader.checkMargin() == False:
-            self.eventFlag = self.trader.marginFlag
+        """ sets a unique integer which is used to represent the occurence of certain conditions in the environment. The flag can be used to determine which reward is given. """
+       pass
 
     def setStopFlag(self):
         """ sets the stop flag based on certain conditions """
@@ -136,17 +122,7 @@ class TradingEnvironment(gym.Env):
     
     def getInfo(self):
         """ returns info from current state as a dict """
-
-        infoDict = {'simNum': self.simNum, 
-                    'eventFlag': self.eventFlag,
-                    'stopFlag': self.stopFlag,
-                    'barNum': self.market.currentBarNum, 
-                    'nTrades':len(self.trader.positions), 
-                    'tradeOpen':self.trader.hasOpenPosition(), 
-                    'accountValue': self.trader.getAccountValue(includeUnrealizedPL=True), 
-                    'accountBalance': self.trader.getAccountValue(includeUnrealizedPL=False), 
-                    'unrealizedPL': self.trader.getUnrealizedPL(),
-                    'allPL': self.trader.getRealizedPL()}
+        infoDict = {}
         return infoDict
     
         ####################### #TODO: this might belong better in RLExperiment
@@ -166,8 +142,7 @@ class TradingEnvironment(gym.Env):
         return self.reportLogDir if mainDirOnly else self.reportLogDir + "/" + self.environmentID
 
     def logReportData(self,observation,reward,done,info):
-        """ logs reportData at the currentBar """
-        #barNum,ohlc,stateFeatures,currentAccVal,deltaPL_lastBar,deltaPL_start,nTrades,entryPrice,exitPrice,positionStatus
+        """ logs reportData """
         logData = {}
         barNum = self.market.currentBarNum
         activeAssetId = self.trader.activeAssetId
@@ -202,10 +177,16 @@ class TradingEnvironment(gym.Env):
         #############################
         # PRIMARY METHODS TO OVERRIDE
         #############################
+    
+    def getActionDict(self):
+        """ returns dictionary where keys are indexes and values are arbitrary action values which will be used by the doAction() method """
+        return { 0: None, 1: 'buy', 2: 'sell'}
 
     def doAction(self, action):
         """ performs action on the environment """
-        self.actions.doAction(action)
+        #Default: 0 = do nothing; 1 = Buy; 2 = Sell
+        tradeAction = self.getActionDict()[action]
+        self.trader.enterPosition(tradeAction)
 
     def getStateObservation(self):
         """ returns current observation """

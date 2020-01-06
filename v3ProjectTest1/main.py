@@ -17,8 +17,6 @@ from RLTrade.experiments.RLTradingExperiment import RLTradingExperiment
 #from ProjectEnvironments.Env_basic_wPosSize import TestTradeEnv_PosSize #import my custom environment
 from ProjectEnvironments.Env_componentTest import Env_122219
 
-
-
 ###############
 # Data Prep
 ###############
@@ -49,6 +47,12 @@ batch_size = 32 #for replay
 nBarsPerReplay = 1 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
 
 nEpisodes = 10
+
+####################
+# Component Setup
+####################
+
+
 
 ####################
 # Experiment Setup

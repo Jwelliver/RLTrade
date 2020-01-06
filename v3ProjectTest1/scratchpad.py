@@ -49,10 +49,38 @@ t.stop('test1')
 print(t.getTotalTimeStr('test1'))
 '''
 
+import inspect
 #print((100/10)%11)
 
-import numpy as np
+def test1(**a):
+    d = {'k1': 'v1', 'k2': 'v2'}
+    d.update(a)
+    #print(d)
 
-print(np.nanmax([1,10,3,np.nan]))
+def test2(a,b):
+    pass
+
+def test3(a,b=34):
+    pass
+
+def test4(a=20,b=34):
+    pass
+
+def test5(a,b=34,*kwargs, t):
+    pass
+
+def argDict(func):
+    t = inspect.getfullargspec(func)
+    args = t.args
+    defaultVals = t.defaults
+    nArgsWithoutDefaultVal = len(args) - len(defaultVals)
+    argD = {i: None for i in args[:nArgsWithoutDefaultVal]}
+    argD.update({args[nArgsWithoutDefaultVal:][i]: defaultVals[i] for i in range(len(defaultVals))})
+    print(argD)
+    #argD = {*t['args']}
 
 
+def test7():
+    print(__name__)
+
+test7()
