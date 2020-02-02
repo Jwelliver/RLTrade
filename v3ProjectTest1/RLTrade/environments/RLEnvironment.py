@@ -119,12 +119,12 @@ class RLEnvironment(gym.Env):
     
     def doAction(self, action):
         """ performs action on the environment """
-        actions.doAction()
+        self.actions.doAction()
 
     def getStateObservation(self):
         """ returns current observation """
-        return stateFeatures.getStateObservation()
+        return self.stateFeatures.getStateObservation()
 
     def getReward(self):
         """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """ #122119: commenting out try/except for now
-        return rewards.getReward()
+        return self.rewards.getReward()

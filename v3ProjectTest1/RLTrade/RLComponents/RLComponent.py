@@ -36,8 +36,8 @@ class RLComponent:
         """ generates and returns argDict from self.callback's arguments """
         t = inspect.getfullargspec(self.callback)
         args = t.args
-        defaultVals = t.defaults
-        nArgsWithoutDefaultVal = len(args) - len(defaultVals)
+        defaultVals = t.defaults if t.defaults!=None else []
+        nArgsWithoutDefaultVal = len(args) -  len(defaultVals)
         argDict = {i: None for i in args[:nArgsWithoutDefaultVal]}
         argDict.update({args[nArgsWithoutDefaultVal:][i]: defaultVals[i] for i in range(len(defaultVals))})
         return argDict

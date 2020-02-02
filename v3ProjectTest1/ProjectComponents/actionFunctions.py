@@ -3,29 +3,29 @@
 ####################
 
 
-def doNothing():
+def doNothing(env):
     """ take no action """
     pass
 
 def enterLong(env):
     """ attempt to enter long position """
-    env.tradingAccount.enterPosition(orderType='buy', allowExit=False)
+    env.trader.enterPosition(orderType='buy', allowExit=False)
 
 def enterShort(env):
     """ attempt to enter short position """
-    env.tradingAccount.enterPosition(orderType='sell', allowExit=False)
+    env.trader.enterPosition(orderType='sell', allowExit=False)
 
 def enterLong_exitShort(env):
     """ attempt to enter new long position or exit an existing short position """
-    env.tradingAccount.enterPosition(orderType='buy', allowExit=True)
+    env.trader.enterPosition(orderType='buy', allowExit=True)
 
 def enterShort_exitLong(env):
     """ attempt to enter new short position or exit an existing long position """
-    env.tradingAccount.enterPosition(orderType='sell', allowExit=True)
+    env.trader.enterPosition(orderType='sell', allowExit=True)
 
-def exitCurrentPosition(tradingAccount):
+def exitCurrentPosition(env):
     """ exit the current position if one exists """
-    env.tradingAccount.exitPosition()
+    env.trader.exitPosition()
 
 ####################
 # Position Sizing
@@ -33,9 +33,9 @@ def exitCurrentPosition(tradingAccount):
 
 def increasePositionSize(env, positionSizeIncrement):
     """ increase position size by positionSizeIncrement  """
-    env.tradingAccount.adjustPositionSize(positionSizeIncrement)
+    env.trader.adjustPositionSize(positionSizeIncrement)
 
 def decreasePositionSize(env, positionSizeIncrement):
     """ decrease position size by positionSizeIncrement  """
     positionSizeIncrement = -abs(positionSizeIncrement) # ensure correct sign
-    env.tradingAccount.adjustPositionSize(positionSizeIncrement)
+    env.trader.adjustPositionSize(positionSizeIncrement)

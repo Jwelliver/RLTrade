@@ -15,7 +15,8 @@ from RLTrade.agents.DQNAgent import DQNAgent
 from RLTrade.experiments.RLTradingExperiment import RLTradingExperiment
 #from ProjectEnvironments.testTradingEnv_basic import TestTradeEnv #import my custom environment
 #from ProjectEnvironments.Env_basic_wPosSize import TestTradeEnv_PosSize #import my custom environment
-from ProjectEnvironments.Env_componentTest import Env_122219
+from ProjectEnvironments.Env_componentTest import Env_011920 as CurrentEnvClass
+from ProjectComponents import stateSets,actionSets,rewardSets
 
 ###############
 # Data Prep
@@ -23,6 +24,14 @@ from ProjectEnvironments.Env_componentTest import Env_122219
 
 assetData = assetDataLib.baseLineData2(tickDataSize=560) #560=100 bars |  #2560 = 500 bars
 print('# of BARS: {}'.format(len(assetData)))
+
+####################
+# Component Setup
+####################
+
+stateSet = stateSets.stateSet1
+actionSet = actionSets.longOnly_variablePositionSize
+rewardSet = rewardSets.rewardSet1
 
 ####################
 # Environment Setup
@@ -36,23 +45,17 @@ market = Market.Market([testAsset])
 tradingAccount = TradingAccount.TradingAccount(market,initialBalance=500)
 
 reportLogDir = os.path.dirname(os.path.abspath(__file__)) + '/reportLogs'
-env = Env_122219(tradingAccount=tradingAccount,reportLogDir=reportLogDir,positionSizeAdjustmentIncrements=500)
+env = CurrentEnvClass(stateSet=stateSet,actionSet=actionSet,rewardSet=rewardSet,tradingAccount=tradingAccount,reportLogDir=reportLogDir,positionSizeAdjustmentIncrements=500)
 state_size = env.getObservationSpaceSize()
 action_size = env.getActionSpaceSize()
 
 agent = DQNAgent(state_size, action_size)
 #agent.load(reportLogDir+'/David_Storlie/Rosa_Blakely/Rosa_Blakely_ModelWeights.h5')
 
-batch_size = 32 #for replay
+batch_size = 3 #for replay
 nBarsPerReplay = 1 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
 
-nEpisodes = 10
-
-####################
-# Component Setup
-####################
-
-
+nEpisodes = 2
 
 ####################
 # Experiment Setup

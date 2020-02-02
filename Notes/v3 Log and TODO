@@ -52,7 +52,7 @@ current:
                     -consider a way to have access to RL objects (env,experiment,etc) as default in these classes.. then user can reference them in callbacks without worrying about setting them up in the argList
                 -2. Only use ComponentGroup class and design it to directly reference callback functions, or overridden functions as a subclass
 
-                -Note - Either of the above might be uneccessary extra work and hinder the flow, while also decreasing experiment speed & increasing memory.
+                -Note - Either of the above might be uneccessary extra work and hinder the flow, while also de creasing experiment speed & increasing memory.
                 -To avoid using Component classes, you can just keep the component metadata structure in the state/action/reward methods, and implement functions in the Environment class that access that data, or
                     ... you can simply provide a method where the use can provide all neccessary metadata (i.e. the experiment.metadata dict)
                     - 122819  Am testing the RLComponent approach (1):
@@ -60,11 +60,18 @@ current:
                         -Create RLComponentGroup Class
                         -Create Action/StateFeature/Reward group classes
                         -Edit TradingEnvironment to expect and use component groups
-                        `** YOU ARE HERE **`
                             -creating ProjectComponents/"group" files
                                 -already finished "actionGroups"
-                                -trying to figure out if there is a better way to combine reward functions other than creating compound functions
+                                -trying to figure out if there is a better way to combine reward functions other than creating compound functions `<- Need to return to this`
+                                `** YOU ARE HERE **`
                                 -once finished setting up the groups, continue to setup a test using the componentgroups.
+                                    - Found out when setting up first RLComponent Test, that the instantiation is kinda messy
+                                        -Not sure what process I was thinking of back when I started the RLComponent approach, but I had the env require the component sets, and made the
+                                            ...factory component methods require the env as an arg.. so as of now, there are two obvious methods to setup components -
+                                            ...1.) pass unbound methods that reference the RlComponent set factory methods (e.g. stateSets.stateSet1 ) to env, and then env will call the method, passing itself during init
+                                            ...2.) remove requirement for componentSet args on env.init and then just set them after instantiating env.
+                                            -Going with #2 for now.
+
                             -currently just working with old TradingEnvironment class (without inheriting RLEnv) to get components working - then you can move to the lines below.
                             -create environment super class
                                 -move reporting features to Experiment

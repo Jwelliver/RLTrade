@@ -80,7 +80,8 @@ def argDict(func):
     #argD = {*t['args']}
 
 
-def test7():
-    print(__name__)
+def test7(a,b):
+    if a: 
+        if b: print("yes")
 
-test7()
+test7(False,False)

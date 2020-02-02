@@ -16,13 +16,11 @@ import os
 import names
 
 class TradingEnvironment(gym.Env):
+    #011920 - currently opting out of inheriting from RLEnvironment in order to get components working here first... then will revisit the inheritance once reporting is finished.
 
-    def __init__(self, tradingAccount, reportLogDir="./reportLogs"):
+    def __init__(self, stateSet, actionSet, rewardSet, tradingAccount, reportLogDir="./reportLogs"):
         self.trader = tradingAccount
         self.market = self.trader.market
-
-        self.action_space = self.getActionSpace()
-        self.observation_space = self.getObservationSpace()
 
         self.reportHistory = []
         self.report = pd.DataFrame() #collects data for export/analysis
@@ -32,6 +30,13 @@ class TradingEnvironment(gym.Env):
         self.simNum = 0 #tracks resets to log simNum data
         self.eventFlag = 0 # updated each update(); Rewards can differ based on this.
         self.stopFlag = 0 # setting this to anything other than 0 will trigger the default isDone() bool.
+
+        self.stateSet = stateSet(self)
+        self.actionSet = actionSet(self)
+        self.rewardSet = rewardSet(self)
+
+        self.action_space = self.getActionSpace()
+        self.observation_space = self.getObservationSpace()
 
         #reward_range = () # set this if you want to limit min/max reward, otherwise, it's automatically inifinte
 
@@ -88,7 +93,7 @@ class TradingEnvironment(gym.Env):
 
     def getActionSpace(self):
         """ returns action space obj """
-        return gym.spaces.Discrete(len(self.actions.componentList))
+        return gym.spaces.Discrete(len(self.actionSet.componentList))
     
     def getActionSpaceSize(self):
         """ returns size of action space """
@@ -205,12 +210,12 @@ class TradingEnvironment(gym.Env):
 
     def doAction(self, action):
         """ performs action on the environment """
-        self.actions.doAction(action)
+        self.actionSet.doAction(action)
 
     def getStateObservation(self):
         """ returns current observation """
-        return stateFeatures.getStateObservation()
+        return self.stateSet.getStateFeatures()
 
     def getReward(self):
         """ returns current reward as a float accounting for the current eventFlag; returns 0 if reward does not exist for the existing eventFlag """ #122119: commenting out try/except for now
-        return rewards.getReward()
+        return self.rewardSet.getReward()
