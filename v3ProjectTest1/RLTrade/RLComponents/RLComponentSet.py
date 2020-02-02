@@ -9,8 +9,8 @@ from RLTrade.RLComponents.RLComponent import RLComponent
 
 
 class RLComponentSet:
-    def __init__(self, componentList=[],envRef=None,setMetadata={}):
-        self.componentList = componentList
+    def __init__(self, componentList=None,envRef=None,setMetadata={}):
+        self.componentList = [] if componentList==None else componentList
         self.env = envRef
         self.metadata = setMetadata
     

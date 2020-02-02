@@ -52,10 +52,9 @@ action_size = env.getActionSpaceSize()
 agent = DQNAgent(state_size, action_size)
 #agent.load(reportLogDir+'/David_Storlie/Rosa_Blakely/Rosa_Blakely_ModelWeights.h5')
 
-batch_size = 3 #for replay
+batch_size = 5 #for replay
 nBarsPerReplay = 1 # this is how many bars between each agent replay call. The lower the number, the more often it's called (slower)
-
-nEpisodes = 2
+nEpisodes = 1
 
 ####################
 # Experiment Setup

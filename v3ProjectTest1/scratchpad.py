@@ -8,6 +8,7 @@
 #import pandas as pd
 
 from datetime import timedelta
+import numpy as np
 
 '''def experimentTimeEstimate(nBars,batch_size,nBarsPerReplay, nEpisodes): #incomplete - need to calc for added time per episode
     """ quick rough estimate of time to complete """
@@ -80,8 +81,33 @@ def argDict(func):
     #argD = {*t['args']}
 
 
-def test7(a,b):
-    if a: 
-        if b: print("yes")
+def nnZeroesTest():
+    from keras.models import Sequential
+    from keras.layers import Dense
+    from keras.optimizers import Adam
+    from keras.utils import plot_model
+    model = Sequential()
+    model.add(Dense(5, input_dim=3, activation='relu'))
+    model.add(Dense(5, activation='relu'))
+    model.add(Dense(3, activation='linear'))
+    model.compile(loss='mse', optimizer=Adam(lr=0.01))
 
-test7(False,False)
+    in0 = np.array([[0,0,0]])
+    in1 = np.array([[1,1,1]])
+
+    out0 = np.array([[0,0,0]])
+
+    #plot_model(model,to_file='testModel_postInit.png')
+    print(model.get_weights())
+    pred1=model.predict(in0)
+    print("prediction 0: {}".format(pred1))
+    model.fit(in0,out0)
+    #plot_model(model,to_file='testModel_postTrain_0.png')
+    print(model.get_weights())
+    pred1=model.predict(in1)
+    print("prediction 1: {}".format(pred1))
+    model.fit(in1,out0)
+    #plot_model(model,to_file='testModel_postTrain_1.png')
+    print(model.get_weights())
+
+nnZeroesTest()

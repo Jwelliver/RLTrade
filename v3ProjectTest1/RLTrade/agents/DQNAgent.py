@@ -7,7 +7,8 @@ from collections import deque
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-import multiprocessing as mp
+from keras.utils import plot_model
+#import multiprocessing as mp
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
@@ -15,8 +16,8 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
+        self.epsilon = 0.9  # exploration rate 
+        self.epsilon_min = 0.05
         self.epsilon_decay = 0.995
         self.learning_rate = 0.01
         self.model = self._build_model()
@@ -93,8 +94,29 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+    def replay_v2(self, batch_size):
+        """ replay_orig() with modified target value calc (reward * gamma * maxQ) """
+        minibatch = random.sample(self.memory, batch_size)
+        n = 0
+        self.nReplaysDebug+=1
+        #print("DQNAgent.replay -> nReplays: {}".format(self.nReplaysDebug))
+        for state, action, reward, next_state, done in minibatch:
+            #print("DQNAgent.replay -> {}-{}".format(self.nReplaysDebug,n))
+            target = reward
+            if not done:
+                target = (reward * self.gamma * np.amax(self.model.predict(next_state)[0]))
+            target_f = self.model.predict(state)
+            target_f[0][action] = target
+            self.model.fit(state, target_f, epochs=1, verbose=0)
+            n+=1
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
     def load(self, name):
         self.model.load_weights(name)
 
     def save(self, name):
         self.model.save_weights(name)
+
+    def plot(self, path):
+        plot_model(self.model,to_file=path)

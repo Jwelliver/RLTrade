@@ -63,7 +63,6 @@ current:
                             -creating ProjectComponents/"group" files
                                 -already finished "actionGroups"
                                 -trying to figure out if there is a better way to combine reward functions other than creating compound functions `<- Need to return to this`
-                                `** YOU ARE HERE **`
                                 -once finished setting up the groups, continue to setup a test using the componentgroups.
                                     - Found out when setting up first RLComponent Test, that the instantiation is kinda messy
                                         -Not sure what process I was thinking of back when I started the RLComponent approach, but I had the env require the component sets, and made the
@@ -73,6 +72,10 @@ current:
                                             -Going with #2 for now.
 
                             -currently just working with old TradingEnvironment class (without inheriting RLEnv) to get components working - then you can move to the lines below.
+                                - main.onPostStep() issue: @done
+                                    -code is not getting past agent.query (->agent.model.predict), but no error is given.
+                            `** YOU ARE HERE **`
+                                - as an aside, need to make sure RLComponentSet return dimensions are correct.. Just noticed state is a 2d array... not sure that's correct. 
                             -create environment super class
                                 -move reporting features to Experiment
                                     -skipping this for now .. look into decorators (and property decorator) to see if it might provide a better solution for reporting
@@ -92,8 +95,39 @@ current:
             ... then, create a system that either generates state spaces, or generates specialized agents that come with prepacked "sensors" for interpreting an asset, i.e. a specific set of TA indicators and params
                 ...they could then be evaluated independetly, or the optimizing system can utilize a genetic/evolution approach.
 
+    Important -> Need to review code for this:
+        -Turns out that the odd shared variable behavior was a result of python using the same memory for a list being used as a default param in the method's signature
+            ... i.e. if you use a mutable type as a default argval, python will evaluate/create that default arg once when it is instantiated, NOT each time it's called.
+            ... I had no idea about this and probably used similar structure elsewhere..
+            - replace all mutable default argvals with None, then set as needed inside the function
+
+    - Look into initializing network weights and optionally  avoiding zero as input 
+
 
 later:
+
+    - Better epsilon decay algorithm *important*
+        -Right now, epsilon decay is done arbitrarily during each replay call (once per call, not per replay loop in each call)
+        ... there is for sure a better approach to this. Keep in mind epsilon is how much the model believes in it's current policy.
+            -Increase/reduce epsilon as a function of recent performance consistency given certain states.
+            -Multiple epsilon values?
+                -one for each action?
+                -one for each action/state pair?
+                    -How
+                        -use unsupervised learning like KNN to group states into categories?
+                    -Why
+                        -this would allow for smarter choices.. and better adaptive behavior.
+                        ... e.g. if it knows a given action in a given state always is good, it's decision to take that action should not be affected
+                        ... by the fact that it's not as sure about other states, which is exactly what happens when all actions are governed by a single epsilon value 
+
+
+    - look into Google's Dopamine, bc somehow I haven't seen this and it looks like they're going for a similar set of features with that framework
+
+    - DQNAgent -> test if replay_v2 is better performing than orig
+        I feel like reward * gamma * maxQ makes alot more sense as a target calculation when reward is arbitrary
+        -Update: Actually, i looked up the algorithm and I guess the way I had it before is correct.
+
+    - DQNAgent should be able to log when a random action is taken in .act(), as opposed to using the model
 
     - RLTradeReportPlotter.plotActions should use action names as y axis, or include legend
 

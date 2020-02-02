@@ -9,6 +9,11 @@ State Features:
 
     - try using distance to breakeven as feature instead of a derivitive of position value
 
+    - be conscious of zero as input - Try to make sure the model is learning/improving even during situations when a trade signal isn't being generated
+        ...it's easy to design an env where the state features do not provide meaningul observations (e.g. [0,0,0,0]) until the reward is active, but having an input of zeros and output of zeroes will leave the
+        ... model stagnant and waste valuable time/info.
+        -I suppose this can also be resolved by ensuring a non-zero reward.. that way, backprop will steer the training even when nothing interesting is happening
+
     - experiment with discrete positionValue readings.
         ... might be better for longer term trades... i.e. only show the agent their posVal as 0.01 if posValPctOfAccVal >=0.01 and < 0.5; show 0.5 if it's > 0.5 and <= 1; etc.
         ... this will make it converge quicker, and be less susceptible to small price movements
