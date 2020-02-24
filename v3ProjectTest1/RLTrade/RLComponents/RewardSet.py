@@ -14,6 +14,25 @@ class RewardSet(RLComponentSet):
         self.defaultRewardValue = defaultRewardValue
 
     def getReward(self):
-        """ returns reward"""
-        if self.env.eventFlag <= len(self.componentList) - 1: return self.componentList[self.env.eventFlag].call()
-        return self.defaultRewardValue if self.defaultRewardValue!=None else self.componentList[0].call()
+        """ returns sum of reward functions """
+        totalReward = 0
+        curEventFlag = self.env.eventFlag
+        for i in self.componentList:
+            if i.metadata['eventFlag_exclude'] != None:
+                if curEventFlag in i.metadata['eventFlag_exclude']: continue
+            if i.metadata['eventFlag'] == None or curEventFlag in i.metadata['eventFlag']:
+                    totalReward += i.call()
+        return totalReward
+
+    def add(self,callback,id=None,description=None,eventFlagInclude=None,eventFlagExclude=None,kwargRef=None,metadata=None):
+        """ creates Reward Component from a given function; Use eventFlagInclude/exclude to specify which event flags this component function should run on. If None, they will ignore eventFlags and always be called."""
+        if metadata==None: metadata = {}
+        if kwargRef==None: kwargRef = {}
+        kwargRef['env'] = self.env #ensure env reference is included
+        if eventFlagInclude!=None: 
+            if not type(eventFlagInclude) is list: eventFlagInclude = list(eventFlagInclude)
+        if eventFlagExclude!=None: 
+            if not type(eventFlagExclude) is list: eventFlagExclude = list(eventFlagExclude)
+        metadata['eventFlag'] = eventFlagInclude
+        metadata['eventFlag_exclude'] = eventFlagExclude
+        super().add(callback,id,description=description,kwargRef=kwargRef,metadata=metadata)

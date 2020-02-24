@@ -22,5 +22,8 @@ class StateFeatureSet(RLComponentSet):
             if not i.enabled: 
                 if self.excludeDisabledFeatures: continue
             else: featureValue = i.call()
-            stateFeatures.append(featureValue)
+            if hasattr(featureValue,'__iter__'):
+                stateFeatures.extend(featureValue)
+            else:
+                stateFeatures.append(featureValue)
         return stateFeatures

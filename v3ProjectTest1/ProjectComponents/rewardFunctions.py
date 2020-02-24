@@ -20,14 +20,14 @@ def position_onClosed_posValue(env,default=0):
     if posJustClosed !=None: return posJustClosed.getPositionValue()
     else: return default
 
-def position_onClosed_posValAsPctChangeOfAcc(env,default=0):
+def position_onClosed_posValAsPctChangeOfAcc(env,default=0,multiplier=1):
     """ returns value of position just closed as a percent of change in account value; otherwise, returns default """
     posJustClosed = env.trader.getPositionClosedOnLastBar()
     if posJustClosed !=None: 
         posValue = posJustClosed.getPositionValue()
         accBalBeforeTrade = env.trader.accountBalance - posValue
         posValPctOfAcc = posValue / accBalBeforeTrade
-        return posValPctOfAcc
+        return posValPctOfAcc * multiplier
     else: return default
 
 ##### Position info | "while open" functions #####
@@ -56,7 +56,18 @@ def account_allTimePL(env):
     """ returns total PL for the account """
     return env.trader.accountBalance - env.trader.initialBalance
 
-
 def account_allTimePL_asPctChangeOfAcc(env):
     """ returns total PL for the account as percent of init acc bal"""
     return (env.trader.accountBalance - env.trader.initialBalance) /env.trader.initialBalance
+
+########################
+# Time Penalty functions
+########################
+
+def timePenalty(env, timePenaltyValue=-0.1):
+    """ returns fixed reward on every call """
+    return timePenaltyValue
+
+def timePenaltyIfNoOpenPosition(env, timePenaltyValue=-0.1):
+    """ returns fixed reward on every call """
+    return timePenaltyValue if env.trader.positionStatus == 0 else 0

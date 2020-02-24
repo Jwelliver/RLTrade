@@ -34,9 +34,9 @@ class Market():
         """ returns asset object from assetId """
         return self.assets[assetId]
     
-    def reset(self):
+    def reset(self,startBar=0):
         """ resets market back to bar 0 """
-        self.setCurrentBarNum(0)
+        self.setCurrentBarNum(startBar)
 
     def getAssetDataFeatures(self,assetIdList,featureKeyList):
         """ returns requested feature values from each asset in assetIdList """

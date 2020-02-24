@@ -5,6 +5,7 @@
 
 import RLTradeReportPlotter
 from matplotlib import pyplot as plt
+from matplotlib.widgets import MultiCursor
 import pandas as pd
 
 def customTradeSimReportPlot_1(csvPath, tradeReportPlotter, figTitle='TradeReport', pauseOnShow=True):
@@ -18,15 +19,17 @@ def customTradeSimReportPlot_1(csvPath, tradeReportPlotter, figTitle='TradeRepor
 
     #self.plotStateFeatures(reportDf)
     overviewAx = trp.plotPrice(reportDf)
-    overviewAx.plot(reportDf['c'].rolling(6).mean())
-    overviewAx.plot(reportDf['c'].rolling(12).mean())
+    overviewAx.plot(reportDf['barNum'].values, reportDf['c'].rolling(5).mean())
+    overviewAx.plot(reportDf['barNum'].values, reportDf['c'].rolling(14).mean())
 
     trp.plotTrades(reportDf, overviewAx)
     trp.plotActions(reportDf)
     trp.plotReward(reportDf)
+    trp.plotPositionSize(reportDf)
     trp.plotAccountValue(reportDf)
     trp.plotUnrealizedPL(reportDf)
-    
+
+    multiCursor = MultiCursor(plt.gcf().canvas,plt.gcf().axes, color='r', lw=1)
     plt.show(block=pauseOnShow)
 
 
@@ -56,6 +59,6 @@ tPath = './reportLogs/plotting_test/reportFile1.csv'
 #t.plotTradeSimReportFromCsv(n)
 '''
 
-agentName = 'Christopher_Leif'
-simsToPlot = [1]#list(range(10,11,1))
+agentName = 'Phyllis_miller'
+simsToPlot = list(range(1,16,1))
 plotTradeSimReportByAgentName(agentName,simsToPlot)

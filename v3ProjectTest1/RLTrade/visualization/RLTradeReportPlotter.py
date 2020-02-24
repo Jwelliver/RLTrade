@@ -25,6 +25,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.widgets import MultiCursor
 
 
 class RLTradeReportPlotter():
@@ -47,15 +48,17 @@ class RLTradeReportPlotter():
         self.plotReward(reportDf)
         self.plotAccountValue(reportDf)
         
+        multiCursor = MultiCursor(plt.gcf().canvas,plt.gcf().axes, color='r', lw=1)
         plt.show(block=pauseOnShow)
     
-    def addSubplot(self):
+    def addSubplot(self, shareXAxis=True):
         """ adds a new subplot to current figure and adjusts the existing subplots to fit """
         cf = plt.gcf()
         currentNAxes = len(cf.get_axes())
         for i in range(currentNAxes):
             cf.axes[i].change_geometry(currentNAxes+1,1,i+1)
-        return plt.subplot(currentNAxes+1,1,currentNAxes+1)
+        shareXAx = None if not shareXAxis or currentNAxes==0 else cf.axes[0]
+        return plt.subplot(currentNAxes+1,1,currentNAxes+1, sharex=shareXAx)
 
     def plotTradeSimReportFromCsv(self,csvPath,figTitle='TradeSimReport',pauseOnShow=True):
         """ loads given csv as dataframe and plots data """
@@ -65,7 +68,8 @@ class RLTradeReportPlotter():
         """ plots price data (close only) """
         if ax==None: ax=self.addSubplot()
         ax.set_title('Overview')
-        ax.plot(reportDf['c'],'k')
+        ax.plot(reportDf['barNum'].values, reportDf['c'],'k')
+        #ax.plot(reportDf['c'],'k')
         return ax
 
     def plotActions_buySell(self, reportDf, ax=None):
@@ -102,7 +106,7 @@ class RLTradeReportPlotter():
         mask2 = reward < 0
         ax.bar(bars[mask1],reward[mask1],color='g')
         ax.bar(bars[mask2],reward[mask2],color='r')
-        ax.plot(sma,':k')
+        ax.plot(reportDf['barNum'].values,sma,':k')
         return ax
 
     def plotUnrealizedPL(self, reportDf, ax=None):
@@ -116,22 +120,29 @@ class RLTradeReportPlotter():
         mask2 = upl < 0
         ax.bar(bars[mask1],upl[mask1],color='g')
         ax.bar(bars[mask2],upl[mask2],color='r')
-        ax.plot(sma,':k')
+        ax.plot(reportDf['barNum'].values,sma,':k')
         return ax
 
     def plotAccountValue(self, reportDf, ax=None):
         """ plots account value """
         if ax==None: ax=self.addSubplot()
         ax.set_title('Account Value (equity)')
-        ax.plot(reportDf['accountValue'],'b') 
-        ax.plot(reportDf['accountBalance'],'k')
+        ax.plot(reportDf['barNum'].values, reportDf['accountValue'],'b') 
+        ax.plot(reportDf['barNum'].values, reportDf['accountBalance'],'k')
         return ax
 
     def plotAccountBalance(self, reportDf, ax=None):
         """ plots account value """
         if ax==None: ax=self.addSubplot()
         ax.set_title('Account Balance')
-        ax.plot(reportDf['accountBalance'],'b') 
+        ax.plot(reportDf['barNum'].values, reportDf['accountBalance'],'b') 
+        return ax
+
+    def plotPositionSize(self, reportDf, ax=None):
+        """ plots account value """
+        if ax==None: ax=self.addSubplot()
+        ax.set_title('PositionSize')
+        ax.plot(reportDf['barNum'].values, reportDf['positionSize'],'b') 
         return ax
     
     def plotStateFeatures(self,reportDf,stateFeatureTitleList=None, ax=None): #currently pretty rigid functionality; either will print all state features onto the given axis, or will plot them separately; todo: fix that; allow for specific state features; allow options for different plot types per feature
@@ -150,7 +161,7 @@ class RLTradeReportPlotter():
             sfData = reportDf[sfId]
             sfAx = ax if ax!=None else self.addSubplot()
             sfAx.set_title(sfTitle)
-            sfAx.scatter(reportDf['barNum'],sfData)
+            sfAx.scatter(reportDf['barNum'].values,sfData)
             axList.append(sfAx)
             n+=1
         return axList if len(axList) >= 1 else sfAx

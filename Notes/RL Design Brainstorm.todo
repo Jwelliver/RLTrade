@@ -60,3 +60,6 @@ Agent Architecture:
     - specialized agent design for trading #122219
         - should have a dedicated process for interpreting price
             - this could be through a set of "sensors" which could be 
+
+    - use hieracrchical clustering on a pool features as means to allow the agent to conduct it's own experiments.
+        -agent will split the features up into states using hieracrchical clustering

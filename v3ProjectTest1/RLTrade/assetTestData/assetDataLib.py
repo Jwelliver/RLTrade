@@ -10,6 +10,17 @@ import numpy as np
 
 from . import testDataGeneration as testDataGen
 
+
+
+def baseLineData0(tickDataSize=500,ohlc_colNames=['open','high','low','close']):
+    """ returns df for testing """
+
+    # - primary ohlc data
+    tickData = testDataGen.getFXSineTickData_squash(tickDataSize,smoothing=20,squashing=100)
+    ohlcDataframe = testDataGen.getOhlcDataFromTickData(tickData,periodInSeconds=5,ohlc_colNames=ohlc_colNames)
+
+    return ohlcDataframe
+
 def baseLineData1(tickDataSize=500):
     """ returns df for testing """
 
@@ -80,3 +91,4 @@ def baseLineData2(tickDataSize=500):
     ohlcDataframe = ohlcDataframe[warmupPeriod:]
 
     return ohlcDataframe
+

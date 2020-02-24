@@ -35,7 +35,7 @@ def getOhlcDataFromTickData(tickDataDf, periodInSeconds=300, ohlc_colNames = Non
         ohlc.columns = ohlc_colNames
     return ohlc
 
-def getOhlcSineData(nTickDatapoints, basePrice=10, smoothing = 10, baseDate="01/01/19",tickTimeIntervalInSeconds=1,candlePeriodInSeconds=300, colnames = ['o','h','l','c'], datesAsColumn = False):
+def getOhlcSineData(nTickDatapoints, basePrice=10, smoothing = 10, baseDate="01/01/19",tickTimeIntervalInSeconds=1,candlePeriodInSeconds=300, colnames = ['open','high','low','close'], datesAsColumn = False):
     """ generates nTickDatapoints worth of sinewave data, then converts and returns it as ohlc data for testing """
     tickData = getSineTickData(nTickDatapoints,basePrice,smoothing,baseDate,tickTimeIntervalInSeconds)
     ohlc = getOhlcDataFromTickData(tickData,candlePeriodInSeconds,colnames)

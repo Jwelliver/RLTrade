@@ -18,9 +18,11 @@ import names
 class TradingEnvironment(gym.Env):
     #011920 - currently opting out of inheriting from RLEnvironment in order to get components working here first... then will revisit the inheritance once reporting is finished.
 
-    def __init__(self, stateSet, actionSet, rewardSet, tradingAccount, reportLogDir="./reportLogs"):
+    def __init__(self, stateSet, actionSet, rewardSet, tradingAccount, marketStartBarNum=0, reportLogDir="./reportLogs"):
         self.trader = tradingAccount
         self.market = self.trader.market
+        self.marketStartBarNum = marketStartBarNum
+        self.market.setCurrentBarNum(marketStartBarNum)
 
         self.reportHistory = []
         self.report = pd.DataFrame() #collects data for export/analysis
@@ -31,6 +33,7 @@ class TradingEnvironment(gym.Env):
         self.eventFlag = 0 # updated each update(); Rewards can differ based on this.
         self.stopFlag = 0 # setting this to anything other than 0 will trigger the default isDone() bool.
 
+        self.componentSets = {'stateSet': stateSet, 'actionSet': actionSet, 'rewardSet': rewardSet}
         self.stateSet = stateSet(self)
         self.actionSet = actionSet(self)
         self.rewardSet = rewardSet(self)
@@ -110,10 +113,10 @@ class TradingEnvironment(gym.Env):
 
     def reinitialize(self,fullInit=False):
         """ re-initializes environment for new start  - adds current sim to sim history, uses it's ohlc and starting balance to reinit new tradingSim """
-        if fullInit: self.__init__(tradingAccount=self.trader,reportLogDir=self.reportLogDir)
+        if fullInit: self.__init__(stateSet=self.componentSets['stateSet'],actionSet=self.componentSets['actionSet'],rewardSet=self.componentSets['rewardSet'],tradingAccount=self.trader,marketStartBarNum=self.marketStartBarNum,reportLogDir=self.reportLogDir)
         self.reportHistory.append(self.report)
         self.report = pd.DataFrame() # reset report
-        self.market.reset()
+        self.market.reset(self.marketStartBarNum)
         self.trader.reset()
         self.eventFlag = 0
         self.stopFlag = 0
@@ -179,7 +182,7 @@ class TradingEnvironment(gym.Env):
         logData.update(self.market.getOHLC(activeAssetId).to_dict())
         logData.update({'stateFeature_' + str(i): observation[i] for i in range(len(observation))})
         logData['reward'] = reward
-        if barNum == 0: logData['totalReward'] = reward
+        if barNum == self.marketStartBarNum: logData['totalReward'] = reward
         else: logData['totalReward'] = self.report.iloc[-1]['totalReward'] +reward
         logData.update(info)
         logData['positionStatus'] = self.trader.getPositionStatus()

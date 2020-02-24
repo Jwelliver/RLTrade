@@ -1,0 +1,26 @@
+#020220
+
+At some point, I would like to try creating a fully automated prop firm
+that might run on something like quantopian.
+
+
+Primary features:
+    - Able to design and conduct experiments (systems/trade ideas)
+        - design
+            - has access to all fundamental and technical data
+        - conduct tests
+        -   some ability to attempt to optimize these experiments
+        
+    - Can determine whether a given experiment should be run live (i.e. it's performing well in test) and assign it a max risk tolerance within the overall live portfolio.
+    - Can evaluate existing risk/exposure in entier portfolio and opt to temporarily disable or remove "traders"(ie. systems) for optimal performance.
+    - User can decide how hands on or off they want to be 
+        -How often, and which decisions are automated vs. needing review before implementing.
+        -User can choose to be updated on all automated decisions and performance
+    - User has easy overview of performance
+
+
+Abstract Structure brainstorm:
+    - Two main entity types per "team" -> Manager and Trader
+        - Teams can have specific focus(ie. specific market, specific analysis type)
+        - Can have multiple teams per account
+            - consider an automated Overall account Manager?

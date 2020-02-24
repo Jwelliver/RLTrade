@@ -19,7 +19,7 @@ import numpy as np
 
 class RLExperiment():
 
-    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None, resetEnvOnNewEpisode=True, callbacksDict = None, metadata = {}):
+    def __init__(self, agent, environment, nEpisodes=1, cudaDevices="0", renderMode=None, resetEnvOnNewEpisode=True, callbacksDict = None, metadata = None):
         self.agent = agent
         self.env = environment
         self.nEpisodes = nEpisodes
@@ -37,7 +37,7 @@ class RLExperiment():
         self.reward = None
         self.info = None
         self.episodeStartTime = 0
-        self.metadata = metadata #store experiment details here. e.g. reward/state descriptions, etc.
+        self.metadata = metadata if metadata==None else {} #store experiment details here. e.g. reward/state descriptions, etc.
         self.consoleLog = '\n\n=========\n\n'
         os.environ["CUDA_VISIBLE_DEVICES"]=cudaDevices #  '-1' = CPU,  '0,1' makes GPUs 0 and 1 visible.
 
@@ -48,6 +48,14 @@ class RLExperiment():
             self.onNewEpisode()
             self.runEpisode()
         self.onExperimentComplete()
+    
+    def runMultiple(self,nExperiments=1, reuseAgent=True, reinitAgent=True):
+        """ starts a series of experiments """
+        for i in range(1,nExperiments+1):
+            self.consoleMsg('Starting Experiment {}/{}'.format(i,nExperiments))
+            self.run()
+            if i<nExperiments: self.onExperimentReset(experimentNumber=i,reuseAgent=reuseAgent, reinitAgent=reinitAgent)
+        self.consoleMsg('All Experiments Complete')
         
     def onNewEpisode(self):
         """ this runs at the start of a new episode """
@@ -66,10 +74,20 @@ class RLExperiment():
         self.consoleMsg("--------> ALL episodes completed in {} | -- Saving Model -> {}".format(timedelta(seconds=self.totalTimeElapsed),self.env.getReportLogDir()),topBorder=True,bottomBorder=True)
         self.agent.save(self.env.getReportLogDir()+"/"+self.env.environmentID + '_ModelWeights.h5')
         self.onExperimentComplete_user()
+
+    def onExperimentReset(self, experimentNumber=0, reuseAgent=True, reinitAgent=True):
+        """ called inbetween multiple experiments when run in series """
+        envId = self.env.environmentID
+        self.__init__(agent=self.agent,environment=self.env,nEpisodes=self.nEpisodes,renderMode=self.renderMode,resetEnvOnNewEpisode=self.resetEnvOnNewEpisode,callbacksDict=self.callbacks,metadata=self.metadata)
+        if reinitAgent: self.agent.__init__(self.state_size,self.action_size)
+        if reuseAgent: self.agent.load('{}/{}_ModelWeights.h5'.format(self.env.getReportLogDir(),envId))
+        self.envReset(fullReset=True)
+        if reuseAgent: self.env.environmentID = '{}_{}'.format(envId,experimentNumber)
+        self.onExperimentReset_user()
     
-    def envReset(self):
+    def envReset(self, fullReset=False):
         """ handles environment reset """
-        self.state = self.env.reset()
+        self.state = self.env.reset(fullInit=fullReset)
         self.state = np.reshape(self.state, [1, self.state_size])
 
     def envRender(self):
@@ -142,3 +160,7 @@ class RLExperiment():
     def onExperimentComplete_user(self):
         """ called at the end of the built-in onExperimentComplete() method """
         self.userCallBack('onExperimentComplete')
+
+    def onExperimentReset_user(self):
+        """ called at the end of the built-in onExperimentComplete() method """
+        self.userCallBack('onExperimentReset')

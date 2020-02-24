@@ -16,7 +16,8 @@ class RLTradingExperiment(RLExperiment):
     def runEpisode(self):
         """ iterates through all bars """
         nBars = self.env.market.getBarCount()
+        #startBarNum = self.env.marketStartBarNum
         self.barNum = 0 #reset
-        for self.barNum in range(nBars):
+        for self.barNum in range(nBars): #range(startBarNum, nBars):
             self.mainUpdate()
             if self.done: break
